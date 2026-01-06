@@ -1,103 +1,200 @@
 from flask_sqlalchemy import SQLAlchemy
-import enum;
+import enum
 
 db = SQLAlchemy()
 
+# ======================
+# ENUM
+# ======================
 class TaskStatus(enum.Enum):
     TODO = "TODO"
     IN_PROGRESS = "IN_PROGRESS"
-    REVIEW = "REVIEW"
     DONE = "DONE"
     BLOCKED = "BLOCKED"
 
-class Role(db.Model):
-    __tablename__ = "role"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), unique=True, nullable=False)
 
-
+# ======================
+# ADDRESS
+# ======================
 class Address(db.Model):
     __tablename__ = "address"
     id = db.Column(db.Integer, primary_key=True)
     city = db.Column(db.String(50))
     street = db.Column(db.String(100))
     postal_code = db.Column(db.String(20))
+    house_number = db.Column(db.String(10))
+    apartment_number = db.Column(db.String(10), nullable=True)
 
 
+# ======================
+# EMPLOYEE (BASE)
+# ======================
 class Employee(db.Model):
     __tablename__ = "employee"
     id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(50))
 
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
+    pesel = db.Column(db.String(20))
+
+    phone = db.Column(db.String(30))
+    email = db.Column(db.String(50))
+
     login = db.Column(db.String(50), unique=True)
     password_hash = db.Column(db.String(128))
 
-    role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
+    hire_date = db.Column(db.String(20))
+    fire_date = db.Column(db.String(20), nullable=True)
+
     address_id = db.Column(db.Integer, db.ForeignKey("address.id"))
-
-    supervisor_id = db.Column(db.Integer, db.ForeignKey("employee.id"))
-
-    role = db.relationship("Role")
     address = db.relationship("Address")
-    supervisor = db.relationship("Employee", remote_side=[id])
+
+    __mapper_args__ = {
+        "polymorphic_on": type,
+        "polymorphic_identity": "employee"
+    }
 
 
+# ======================
+# ROLE ENTITIES
+# ======================
+class StudioHead(Employee):
+    __tablename__ = "studio_head"
+    id = db.Column(db.Integer, db.ForeignKey("employee.id"), primary_key=True)
+
+    __mapper_args__ = {"polymorphic_identity": "studio_head"}
+
+
+class SectionManager(Employee):
+    __tablename__ = "section_manager"
+    id = db.Column(db.Integer, db.ForeignKey("employee.id"), primary_key=True)
+
+    __mapper_args__ = {"polymorphic_identity": "section_manager"}
+
+
+class TeamManager(Employee):
+    __tablename__ = "team_manager"
+    id = db.Column(db.Integer, db.ForeignKey("employee.id"), primary_key=True)
+
+    __mapper_args__ = {"polymorphic_identity": "team_manager"}
+
+
+class TeamMember(Employee):
+    __tablename__ = "team_member"
+    id = db.Column(db.Integer, db.ForeignKey("employee.id"), primary_key=True)
+
+    __mapper_args__ = {"polymorphic_identity": "team_member"}
+
+
+# ======================
+# SECTION
+# ======================
 class Section(db.Model):
     __tablename__ = "section"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
 
-    manager_id = db.Column(db.Integer, db.ForeignKey("employee.id"))
-    manager = db.relationship("Employee")
+    manager_id = db.Column(db.Integer, db.ForeignKey("section_manager.id"))
+    manager = db.relationship("SectionManager")
 
 
+# ======================
+# TEAM
+# ======================
 class Team(db.Model):
     __tablename__ = "team"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
 
     section_id = db.Column(db.Integer, db.ForeignKey("section.id"))
-    manager_id = db.Column(db.Integer, db.ForeignKey("employee.id"))
+    manager_id = db.Column(db.Integer, db.ForeignKey("team_manager.id"))
 
     section = db.relationship("Section")
-    manager = db.relationship("Employee")
+    manager = db.relationship("TeamManager")
 
 
-# association table
-class EmployeeTeam(db.Model):
-    __tablename__ = "employee_team"
-    employee_id = db.Column(db.Integer, db.ForeignKey("employee.id"), primary_key=True)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), primary_key=True)
+# ======================
+# TEAM MEMBER <-> TEAM (M:N)
+# ======================
+class TeamMembership(db.Model):
+    __tablename__ = "team_membership"
+    team_member_id = db.Column(
+        db.Integer,
+        db.ForeignKey("team_member.id"),
+        primary_key=True
+    )
+    team_id = db.Column(
+        db.Integer,
+        db.ForeignKey("team.id"),
+        primary_key=True
+    )
 
 
+# ======================
+# GAME
+# ======================
+class Game(db.Model):
+    __tablename__ = "game"
+    id = db.Column(db.Integer, primary_key=True)
+    studio_head_id = db.Column(db.Integer, db.ForeignKey("studio_head.id"))
+
+    studio_head = db.relationship("StudioHead")
+
+
+# ======================
+# TASK (BASE)
+# ======================
 class Task(db.Model):
     __tablename__ = "task"
     id = db.Column(db.Integer, primary_key=True)
 
-    title = db.Column(db.String(200))
     description = db.Column(db.Text)
-    deadline = db.Column(db.String(20))
-    status = db.Column(
-        db.Enum(TaskStatus),
-        nullable=False,
-        default=TaskStatus.TODO
-    )
+    start_date = db.Column(db.String(20))
+    end_date = db.Column(db.String(20))
 
-    created_at = db.Column(db.String(30))
+    status = db.Column(db.Enum(TaskStatus))
 
 
-class TaskAssignment(db.Model):
-    __tablename__ = "task_assignment"
+# ======================
+# TASK – SECTION
+# ======================
+class SectionTask(db.Model):
+    __tablename__ = "section_task"
     id = db.Column(db.Integer, primary_key=True)
 
     task_id = db.Column(db.Integer, db.ForeignKey("task.id"))
-
-    section_id = db.Column(db.Integer, db.ForeignKey("section.id"), nullable=True)
-    team_id = db.Column(db.Integer, db.ForeignKey("team.id"), nullable=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey("employee.id"), nullable=True)
+    section_id = db.Column(db.Integer, db.ForeignKey("section.id"))
+    game_id = db.Column(db.Integer, db.ForeignKey("game.id"))
 
     task = db.relationship("Task")
     section = db.relationship("Section")
+    game = db.relationship("Game")
+
+
+# ======================
+# TASK – TEAM
+# ======================
+class TeamTask(db.Model):
+    __tablename__ = "team_task"
+    id = db.Column(db.Integer, primary_key=True)
+
+    section_task_id = db.Column(db.Integer, db.ForeignKey("section_task.id"))
+    team_id = db.Column(db.Integer, db.ForeignKey("team.id"))
+
+    section_task = db.relationship("SectionTask")
     team = db.relationship("Team")
-    employee = db.relationship("Employee")
+
+
+# ======================
+# TASK – EMPLOYEE
+# ======================
+class EmployeeTask(db.Model):
+    __tablename__ = "employee_task"
+    id = db.Column(db.Integer, primary_key=True)
+
+    team_task_id = db.Column(db.Integer, db.ForeignKey("team_task.id"))
+    team_member_id = db.Column(db.Integer, db.ForeignKey("team_member.id"))
+
+    team_task = db.relationship("TeamTask")
+    team_member = db.relationship("TeamMember")
