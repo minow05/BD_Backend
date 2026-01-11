@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Employee, TeamMember
+from models import db, Employee, TeamMember, TeamMembership, Team
 
 employees_bp = Blueprint("employees", __name__)
 
@@ -33,3 +33,43 @@ def get_employees():
         }
         for e in employees
     ])
+
+@employees_bp.get("/team/<int:team_id>")
+def get_employees_of_team(team_id):
+    employees = (
+        db.session.query(TeamMember)
+        .join(TeamMembership)
+        .filter(TeamMembership.team_id == team_id)
+        .all()
+    )
+
+    return jsonify([
+        {
+            "id": e.id,
+            "first_name": e.first_name,
+            "last_name": e.last_name
+        }
+        for e in employees
+    ])
+
+
+@employees_bp.get("/section/<int:section_id>")
+def get_employees_of_section(section_id):
+    employees = (
+        db.session.query(TeamMember)
+        .join(TeamMembership)
+        .join(Team)
+        .filter(Team.section_id == section_id)
+        .distinct()
+        .all()
+    )
+
+    return jsonify([
+        {
+            "id": e.id,
+            "first_name": e.first_name,
+            "last_name": e.last_name
+        }
+        for e in employees
+    ])
+

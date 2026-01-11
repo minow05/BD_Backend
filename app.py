@@ -19,6 +19,7 @@ def create_app():
     app.register_blueprint(teams_bp, url_prefix="/api/teams")
     app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
 
+
     @app.route("/")
     def index():
         return {"status": "API is running"}

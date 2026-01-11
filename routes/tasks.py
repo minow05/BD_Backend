@@ -57,3 +57,83 @@ def create_employee_task():
     db.session.commit()
 
     return jsonify({"id": employee_task.id}), 201
+
+@tasks_bp.get("/employee/<int:employee_id>")
+def get_tasks_for_employee(employee_id):
+    tasks = (
+        db.session.query(Task)
+        .join(EmployeeTask, EmployeeTask.task_id == Task.id)
+        .filter(EmployeeTask.team_member_id == employee_id)
+        .all()
+    )
+
+    return jsonify([
+        {
+            "id": t.id,
+            "description": t.description,
+            "status": t.status.value
+        }
+        for t in tasks
+    ])
+
+@tasks_bp.get("/team/<int:team_id>")
+def get_tasks_for_team(team_id):
+    tasks = (
+        db.session.query(Task)
+        .join(TeamTask, TeamTask.task_id == Task.id)
+        .filter(TeamTask.team_id == team_id)
+        .all()
+    )
+
+    return jsonify([
+        {
+            "id": t.id,
+            "description": t.description,
+            "status": t.status.value
+        }
+        for t in tasks
+    ])
+
+@tasks_bp.get("/section/<int:section_id>")
+def get_tasks_for_section(section_id):
+    tasks = (
+        db.session.query(Task)
+        .join(SectionTask, SectionTask.task_id == Task.id)
+        .filter(SectionTask.section_id == section_id)
+        .all()
+    )
+
+    return jsonify([
+        {
+            "id": t.id,
+            "description": t.description,
+            "status": t.status.value
+        }
+        for t in tasks
+    ])
+
+@tasks_bp.get("/")
+def get_all_tasks():
+    tasks = Task.query.all()
+
+    return jsonify([
+        {
+            "id": t.id,
+            "description": t.description,
+            "status": t.status.value
+        }
+        for t in tasks
+    ])
+
+@tasks_bp.get("/<int:task_id>")
+def get_task_details(task_id):
+    task = Task.query.get_or_404(task_id)
+
+    return jsonify({
+        "id": task.id,
+        "title": task.title,
+        "description": task.description,
+        "status": task.status,
+        "assigned_team_id": task.assigned_team_id
+    })
+
