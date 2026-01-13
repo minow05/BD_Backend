@@ -4,6 +4,8 @@ from routes.employees import employees_bp
 from routes.sections import sections_bp
 from routes.teams import teams_bp
 from routes.tasks import tasks_bp
+from routes.team_memberships import team_memberships_bp
+from routes.progress import progress_bp
 import generate_data
 
     
@@ -22,7 +24,9 @@ def create_app():
     app.register_blueprint(sections_bp, url_prefix="/api/sections")
     app.register_blueprint(teams_bp, url_prefix="/api/teams")
     app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
-    
+    app.register_blueprint(team_memberships_bp, url_prefix="/api/team_memberships")
+    app.register_blueprint(progress_bp, url_prefix="/api/progress")
+
 
     @app.route('/')
     def index():

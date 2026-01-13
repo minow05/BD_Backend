@@ -78,3 +78,23 @@ def get_team_progress(team_id):
             if total_tasks > 0 else 0
         )
     })
+
+@teams_bp.post("/")
+def create_team():
+    data = request.json
+    team = Team(
+        name=data["name"],
+        section_id=data["section_id"],
+        manager_id=data["manager_id"]
+    )
+    db.session.add(team)
+    db.session.commit()
+    return jsonify({"id": team.id}), 201
+
+
+@teams_bp.get("/")
+def get_all_teams():
+    return jsonify([
+        {"id": t.id, "name": t.name}
+        for t in Team.query.all()
+    ])

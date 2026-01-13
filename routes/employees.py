@@ -187,3 +187,35 @@ def get_employee_context(employee_id):
         "section_id": team.section_id
     })
 
+@employees_bp.post("/")
+def create_employee():
+    data = request.json
+    employee = TeamMember(
+        first_name=data["first_name"],
+        last_name=data["last_name"],
+        login=data["login"],
+        password_hash=data["password"]
+    )
+    db.session.add(employee)
+    db.session.commit()
+    return jsonify({"id": employee.id}), 201
+
+
+@employees_bp.delete("/<int:employee_id>")
+def fire_employee(employee_id):
+    employee = TeamMember.query.get_or_404(employee_id)
+    db.session.delete(employee)
+    db.session.commit()
+    return jsonify({"status": "deleted"})
+
+
+@employees_bp.get("/")
+def get_all_employees():
+    return jsonify([
+        {
+            "id": e.id,
+            "first_name": e.first_name,
+            "last_name": e.last_name
+        } for e in TeamMember.query.all()
+    ])
+

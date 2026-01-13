@@ -147,3 +147,12 @@ def get_task_details(task_id):
         "assigned_team_id": task.assigned_team_id
     })
 
+@tasks_bp.patch("/<int:task_id>/status")
+def update_task_status(task_id):
+    data = request.json
+    task = Task.query.get_or_404(task_id)
+    task.status = TaskStatus[data["status"]]
+    db.session.commit()
+    return jsonify({"status": "updated"})
+
+
