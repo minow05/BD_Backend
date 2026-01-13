@@ -104,12 +104,11 @@
             <div class="container">
                 <h1>🎮 Game Studio API - Demo</h1>
                 
-                <!-- Endpoint 1: Pobierz wszystkich pracowników -->
                 <div class="endpoint-card">
-                    <div class="team-box">
-                        <button onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
-                        <button onclick="chooseOption('task')">Zarządzaj zadaniami</button>
-                        <button onclick="chooseOption('team')">Zarządzaj zespołem</button>
+                        <div class="team-box">
+                        <button onclick="chooseOption('team')">Wyświetl zadania zespołu</button>
+                        <button onclick="chooseOption('your')">Wyświetl swoje zadania</button>
+                        <button onclick="chooseOption('employee')">Zarządzaj zadaniami pracowników</button>
                     </div>
                 </div>
                 
@@ -117,20 +116,29 @@
             
             <script>
                 async function chooseOption(type) {
-                    if (type == 'data')
-                    {
-                        const id = "{{id}}"
-                        location.replace(`/your-data/${id}`);  
-                    }
-                    if (type == 'task')
-                    {
-                        const id = "{{id}}"
-                      location.replace(`/manage-tasks/${id}`);  
-                    }
+                     const options = {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };  
+                        id = "{{id}}"
+                        const response = await fetch(`/api/employees/${id}/context`, options);
+                        const result = await response.json();
+                        team_id = result.team_id;
+
                     if (type == 'team')
                     {
+                        location.replace(`/team-tasks/${team_id}`);  
+                    }
+                    if (type == 'your')
+                    {
                         const id = "{{id}}"
-                      location.replace(`/team/${id}`);  
+                      location.replace(`/your-tasks/${id}`);  
+                    }
+                    if (type == 'employee')
+                    {
+                      location.replace(`/team/employees/${team_id}`);  
                     }
 
                 }
