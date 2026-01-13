@@ -131,9 +131,9 @@
                         result2 = await response2.json();
                         block = ""
                         
-                        for (i = 0; i<result.length; i++)
+                        for (i = 0; i<result2.length; i++)
                         {
-                            block+="<div class='team-box'><p>Imię i nazwisko: "+result2[i].first_name+"</p><p>Opis: "+result2[i].last_name+"</p></div>";
+                            block+="<div class='team-box'><p>Imię i nazwisko: "+result2[i].first_name+" "+result2[i].last_name+"</p></div>";
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

@@ -103,7 +103,7 @@
         </head>
         <body onload="generateContent()">
             <div class="container">
-                <h1>Zadania użytkownika</h1>
+                <h1>Zadania zespołu</h1>
                 
                 <!-- Endpoint 1: Pobierz wszystkich pracowników -->
                 <div id="endpoint-card">
@@ -127,7 +127,7 @@
                         const response = await fetch(`/api/tasks/team/${teamid}`, options);
                         const result = await response.json();
                         block = ""
-                        
+                        alert(result.length)
                         for (i = 0; i<result.length; i++)
                         {
                             block+="<div class='team-box'><p>Id zadania: "+result[i].id+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+result[i].status+"</p></div>";

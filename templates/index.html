@@ -166,16 +166,16 @@
                             id = result[0].id
                             if(result[0].position=="studioHead")
                             {
-                            location.replace(`/check-user/szefstudia/${id}`);
+                            location.href =`/check-user/szefstudia/${id}`;
                             }
                             if(result[0].position=="teamManager")
                             {
-                            location.replace(`/check-user/kierownikzespolu/${id}`);
+                            location.href =`/check-user/kierownikzespolu/${id}`;
                             }
                             if(result[0].position=="sectionManager")
-                            location.replace(`/check-user/kierowniksekcji/${id}`);
+                            location.href =`/check-user/kierowniksekcji/${id}`;
                             if(result[0].position=="employee")
-                            location.replace(`/check-user/pracownik/${id}`);
+                            location.href =`/check-user/pracownik/${id}`;
                         }
                     } catch (error) {
                         const responseDiv = document.getElementById(responseId);

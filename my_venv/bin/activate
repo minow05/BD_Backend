@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV='/home/karambito/Desktop/studia4-5/bazy danych/BD_Backend/my_venv'
+VIRTUAL_ENV=/home/karambito/Desktop/BD_Backend/my_venv
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

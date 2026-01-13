@@ -129,16 +129,16 @@
 
                     if (type == 'team')
                     {
-                        location.replace(`/team-tasks/${team_id}`);  
+                        location.href =`/team-tasks/${team_id}`;  
                     }
                     if (type == 'your')
                     {
                         const id = "{{id}}"
-                      location.replace(`/your-tasks/${id}`);  
+                      location.href =`/your-tasks/${id}`;  
                     }
                     if (type == 'employee')
                     {
-                      location.replace(`/team/employees/${team_id}`);  
+                      location.href =`/team/employees/${team_id}`;  
                     }
 
                 }
