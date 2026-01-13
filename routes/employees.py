@@ -164,28 +164,45 @@ def get_employees_of_section(section_id):
 
 @employees_bp.get("/<int:employee_id>/context")
 def get_employee_context(employee_id):
-    employee = TeamMember.query.get_or_404(employee_id)
+    # team jako członek
+    membership = TeamMembership.query.filter_by(employee_id=employee_id).first()
 
-    membership = (
-        TeamMembership.query
-        .filter_by(team_member_id=employee.id)
-        .first()
-    )
-
-    if not membership:
+    if membership:
+        team = Team.query.get(membership.team_id)
         return jsonify({
-            "employee_id": employee.id,
-            "team_id": None,
-            "section_id": None
+            "employee_id": employee_id,
+            "team_id": team.id,
+            "section_id": team.section_id,
+            "role": "TEAM_MEMBER"
         })
 
-    team = Team.query.get(membership.team_id)
+    # team jako manager
+    team = Team.query.filter_by(manager_id=employee_id).first()
+    if team:
+        return jsonify({
+            "employee_id": employee_id,
+            "team_id": team.id,
+            "section_id": team.section_id,
+            "role": "TEAM_MANAGER"
+        })
+
+    # section jako manager
+    section = Section.query.filter_by(manager_id=employee_id).first()
+    if section:
+        return jsonify({
+            "employee_id": employee_id,
+            "team_id": None,
+            "section_id": section.id,
+            "role": "SECTION_MANAGER"
+        })
 
     return jsonify({
-        "employee_id": employee.id,
-        "team_id": team.id,
-        "section_id": team.section_id
+        "employee_id": employee_id,
+        "team_id": None,
+        "section_id": None,
+        "role": "NONE"
     })
+
 
 @employees_bp.post("/")
 def create_employee():
