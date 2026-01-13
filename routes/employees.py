@@ -117,30 +117,6 @@ def get_employees_of_team(team_id):
         for e in employees
     ])
 
-@employees_bp.get("/<int:employee_id>/context")
-def get_employee_context(employee_id):
-    employee = TeamMember.query.get_or_404(employee_id)
-
-    membership = (
-        TeamMembership.query
-        .filter_by(team_member_id=employee.id)
-        .first()
-    )
-
-    if not membership:
-        return jsonify({
-            "employee_id": employee.id,
-            "team_id": None,
-            "section_id": None
-        })
-
-    team = Team.query.get(membership.team_id)
-
-    return jsonify({
-        "employee_id": employee.id,
-        "team_id": team.id,
-        "section_id": team.section_id
-    })
 
 @employees_bp.get("/section/<int:section_id>")
 def get_employees_of_section(section_id):
@@ -162,35 +138,35 @@ def get_employees_of_section(section_id):
         for e in employees
     ])
 
-@employees_bp.get("/<int:employee_id>/context")
-def get_employee_context(employee_id):
+@employees_bp.get("/<int:team_member_id>/context")
+def get_employee_context(team_member_id):
     # team jako członek
-    membership = TeamMembership.query.filter_by(employee_id=employee_id).first()
+    membership = TeamMembership.query.filter_by(team_member_id=team_member_id).first()
 
     if membership:
         team = Team.query.get(membership.team_id)
         return jsonify({
-            "employee_id": employee_id,
+            "employee_id": team_member_id,
             "team_id": team.id,
             "section_id": team.section_id,
             "role": "TEAM_MEMBER"
         })
 
     # team jako manager
-    team = Team.query.filter_by(manager_id=employee_id).first()
+    team = Team.query.filter_by(manager_id=team_member_id).first()
     if team:
         return jsonify({
-            "employee_id": employee_id,
+            "employee_id": team_member_id,
             "team_id": team.id,
             "section_id": team.section_id,
             "role": "TEAM_MANAGER"
         })
 
     # section jako manager
-    section = Section.query.filter_by(manager_id=employee_id).first()
+    section = Section.query.filter_by(manager_id=team_member_id).first()
     if section:
         return jsonify({
-            "employee_id": employee_id,
+            "employee_id": team_member_id,
             "team_id": None,
             "section_id": section.id,
             "role": "SECTION_MANAGER"
@@ -203,18 +179,6 @@ def get_employee_context(employee_id):
         "role": "NONE"
     })
 
-@employees_bp.post("/")
-def create_employee():
-    data = request.json
-    employee = TeamMember(
-        first_name=data["first_name"],
-        last_name=data["last_name"],
-        login=data["login"],
-        password_hash=data["password"]
-    )
-    db.session.add(employee)
-    db.session.commit()
-    return jsonify({"id": employee.id}), 201
 
 
 @employees_bp.delete("/<int:employee_id>")
