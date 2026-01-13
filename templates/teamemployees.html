@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel pracownika</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                }
+                
+                .container {
+                    background: white;
+                    border-radius: 15px;
+                    padding: 40px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                }
+                
+                h1 {
+                    color: #2c3e50;
+                    text-align: center;
+                    margin-bottom: 40px;
+                }
+                
+                #endpoint-card {
+                    background: #f8f9fa;
+                    border-left: 5px solid #3498db;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    border-radius: 8px;
+                    transition: transform 0.3s;
+                    background: #34495e;
+                    display: flex;
+                    height: 500px;
+                    align-items: center;
+                    overflow-y: auto;
+                }
+                
+                
+                .method {
+                    display: inline-block;
+                    padding: 5px 15px;
+                    border-radius: 5px;
+                    font-weight: bold;
+                    margin-right: 10px;
+                }
+                
+                .example {
+                    background: #f1f2f6;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 10px 0;
+                    font-family: 'Courier New', monospace;
+                    font-size: 14px;
+                }
+                
+                button {
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-right: 10px;
+                    transition: background 0.3s;
+                }
+                
+                button:hover {
+                    background: #2980b9;
+                }
+                
+                .response {
+                    margin-top: 15px;
+                    padding: 15px;
+                    background: #e8f4f8;
+                    border-radius: 5px;
+                    display: none;
+                    max-height: 300px;
+                    overflow-y: auto;
+                }
+            
+                
+                .team-box {
+                    flex: 1;
+                    background-color: #e8f4f8;
+                    color: black;
+                    padding: 20px;
+                    border-radius: 10px;
+                    text-align: center;
+                    
+                }
+                
+                .team-box h3 {
+                    color: #3498db;
+                    margin-bottom: 15px;
+                }
+            </style>
+        </head>
+        <body onload="generateContent()">
+            <div class="container">
+                <h1>Pracownicy zespołu</h1>
+                
+                <!-- Endpoint 1: Pobierz wszystkich pracowników -->
+                <div id="endpoint-card">
+
+                </div>
+            
+                
+            </div>
+            
+            <script>
+                async function generateContent() {
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };
+                        id = "{{id}}"
+                        const response = await fetch(`/api/employees/${id}/context`, options);
+                        const result = await response.json();
+                        team_id = result.team_id;
+                    try {
+                        
+                        response2 = await fetch(`/api/employees/team/${team_id}`, options);
+                        result2 = await response2.json();
+                        block = ""
+                        
+                        for (i = 0; i<result.length; i++)
+                        {
+                            block+="<div class='team-box'><p>Imię i nazwisko: "+result2[i].first_name+"</p><p>Opis: "+result2[i].last_name+"</p></div>";
+                        }
+                        
+                        const responseDiv = document.getElementById('endpoint-card');
+
+                        responseDiv.style.display = 'block';
+
+                        responseDiv.innerHTML = block;
+                    } catch (error) {
+                        const responseDiv = document.getElementById(endpoint-card);
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = `<strong>Błąd:</strong> ${error.message}`;
+                    }
+                }
+            
+                
+            </script>
+        </body>
+        </html>

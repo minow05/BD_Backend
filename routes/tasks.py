@@ -33,7 +33,12 @@ def create_section_task():
 def create_team_task():
     data = request.json
 
+    task = Task(
+        description=data["description"],
+        status=TaskStatus.TODO
+    )
     team_task = TeamTask(
+        task_id=task.id,
         section_task_id=data["section_task_id"],
         team_id=data["team_id"]
     )
@@ -48,7 +53,12 @@ def create_team_task():
 def create_employee_task():
     data = request.json
 
+    task = Task(
+        description=data["description"],
+        status=TaskStatus.TODO
+    )
     employee_task = EmployeeTask(
+        task_id=task.id,
         team_task_id=data["team_task_id"],
         team_member_id=data["team_member_id"]
     )
