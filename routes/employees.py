@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from models import db, Employee, TeamMember, TeamMembership, Team, StudioHead, SectionManager, TeamManager
+from models import db, Employee, TeamMember, TeamMembership, Team, StudioHead, SectionManager, TeamManager, Section
 from werkzeug.security import check_password_hash
 employees_bp = Blueprint("employees", __name__)
 
@@ -202,7 +202,6 @@ def get_employee_context(employee_id):
         "section_id": None,
         "role": "NONE"
     })
-
 
 @employees_bp.post("/")
 def create_employee():
