@@ -173,7 +173,7 @@ def get_employee_context(team_member_id):
         })
 
     return jsonify({
-        "employee_id": employee_id,
+        "employee_id": team_member_id,
         "team_id": None,
         "section_id": None,
         "role": "NONE"
