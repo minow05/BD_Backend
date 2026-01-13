@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from models import db, Employee, TeamMember, TeamMembership, Team
-
+from models import db, Employee, TeamMember, TeamMembership, Team, StudioHead, SectionManager, TeamManager
+from werkzeug.security import check_password_hash
 employees_bp = Blueprint("employees", __name__)
 
 
@@ -33,6 +33,71 @@ def get_employees():
         }
         for e in employees
     ])
+@employees_bp.get("/employee/id/<int:id>")
+def get_employee_id(id):
+
+    employeee = (
+        db.session.query(Employee)
+        .filter(Employee.id == id)
+    )
+    return jsonify([
+        {
+            "id": employee.id,
+            "first_name": employee.first_name,
+            "last_name": employee.last_name,
+            "pesel": employee.pesel,
+            "phone": employee.phone,
+            "email": employee.email,
+            "hire_date": employee.hire_date,
+        }
+        for employee in employeee   
+    ])
+    
+@employees_bp.get("/employee/<string:employee_login>/<string:employee_password>")
+def get_employee(employee_login, employee_password):
+    position = ""
+    employeee = (
+        db.session.query(Employee)
+        .filter(Employee.login == employee_login)
+    )
+    for employee in employeee:
+        right_password = employee.password_hash
+    passw = check_password_hash(right_password,employee_password)
+    if passw == True:
+        position = "employee"
+        studioHead = StudioHead.query.all()
+        sectionManager = SectionManager.query.all()
+        teamManager = TeamManager.query.all()
+        id = employee.id
+        for e in studioHead:
+            if id == e.id:
+                position = "studioHead"
+        for e in sectionManager:
+            if id == e.id:
+                position = "sectionManager"
+        for e in teamManager:
+            if id == e.id:
+                position = "teamManager"
+        return jsonify([
+            {
+                "status": "good",
+                "id": employee.id,
+                "position": position,
+                "first_name": employee.first_name,
+                "last_name": employee.last_name,
+                "pesel": employee.pesel,
+                "phone": employee.phone,
+                "email": employee.email,
+                "hire_date": employee.hire_date,
+            }
+            for employee in employeee   
+        ])
+    else:
+        return jsonify([
+            {
+            "status": "bad",
+            }
+        ])
 
 @employees_bp.get("/team/<int:team_id>")
 def get_employees_of_team(team_id):

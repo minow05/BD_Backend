@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Game Studio - API Demo</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                }
+                
+                .container {
+                    background: white;
+                    border-radius: 15px;
+                    padding: 40px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                }
+                
+                h1 {
+                    color: #2c3e50;
+                    text-align: center;
+                    margin-bottom: 40px;
+                }
+                
+                .endpoint-card {
+                    background: #f8f9fa;
+                    border-left: 5px solid #3498db;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                    border-radius: 8px;
+                    transition: transform 0.3s;
+                    background: #34495e;
+                    display: flex;
+                    height: 500px;
+                    align-items: center;
+                }
+                
+                
+                .method {
+                    display: inline-block;
+                    padding: 5px 15px;
+                    border-radius: 5px;
+                    font-weight: bold;
+                    margin-right: 10px;
+                }
+                
+                .example {
+                    background: #f1f2f6;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 10px 0;
+                    font-family: 'Courier New', monospace;
+                    font-size: 14px;
+                }
+                
+                button {
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-right: 10px;
+                    transition: background 0.3s;
+                }
+                
+                button:hover {
+                    background: #2980b9;
+                }
+                
+                .response {
+                    margin-top: 15px;
+                    padding: 15px;
+                    background: #e8f4f8;
+                    border-radius: 5px;
+                    display: none;
+                    max-height: 300px;
+                    overflow-y: auto;
+                }
+            
+                
+                .team-box {
+                    flex: 1;
+                    
+                    color: black;
+                    padding: 20px;
+                    border-radius: 10px;
+                    text-align: center;
+                    
+                }
+                
+                .team-box h3 {
+                    color: #3498db;
+                    margin-bottom: 15px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🎮 Game Studio API - Demo</h1>
+                
+                <!-- Endpoint 1: Pobierz wszystkich pracowników -->
+                <div class="endpoint-card">
+                    <div class="team-box">
+                        <h3>👥 Logowanie</h3>
+                        <p>Wpisz dane logowania, by zwrócić informacje o pracowniku.</p>
+                        <input type="text" id="login" placeholder="login" 
+                               style="padding: 8px; width: 100px; margin-right: 10px;">
+                        <input type="password" id="password" placeholder="password" 
+                               style="padding: 8px; width: 100px; margin-right: 10px;">
+                        <button onclick="testTeamEndpoint()">zaloguj się</button>
+                        <div id="response3" class="response" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+                
+                <!-- Endpoint 2: Utwórz nowego pracownika -->
+                <!--<div class="endpoint-card">
+                    <h3>2. Utwórz nowego pracownika</h3>
+                    <p>Tworzy nowego pracownika (wymaga danych JSON).</p>
+                    <div class="example">
+                        {
+                            "first_name": "Jan",
+                            "last_name": "Nowak",
+                            "login": "jnowak",
+                            "password": "hashed_password"
+                        }
+                    </div>
+                    <button onclick="testCreateEmployee()">
+                        Utwórz testowego pracownika
+                    </button>
+                    <div id="response2" class="response"></div>
+                </div>-->
+                
+            </div>
+            
+            <script>
+                async function testEndpoint(url, method, data = null, responseId) {
+                    const options = {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };
+                    
+                    if (data) {
+                        options.body = JSON.stringify(data);
+                    }
+                    
+                    try {
+                        const response = await fetch(url, options);
+                        const result = await response.json();
+                        const responseDiv = document.getElementById(responseId);
+                        if(result[0].status=="bad"){
+                        
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = `<strong>Wpisano błędny login bądź hasło!</strong>`;
+                        }
+                        else{
+                            first_name = result[0].first_name
+                            last_name = result[0].last_name
+                            id = result[0].id
+                            if(result[0].position=="studioHead")
+                            {
+                            location.replace(`/check-user/szefstudia/${id}`);
+                            }
+                            if(result[0].position=="teamManager")
+                            {
+                            location.replace(`/check-user/kierownikzespolu/${id}`);
+                            }
+                            if(result[0].position=="sectionManager")
+                            location.replace(`/check-user/kierowniksekcji/${id}`);
+                            if(result[0].position=="employee")
+                            location.replace(`/check-user/pracownik/${id}`);
+                        }
+                    } catch (error) {
+                        const responseDiv = document.getElementById(responseId);
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = `<strong>Błąd:</strong> ${error.message}`;
+                    }
+                }
+
+                
+                async function testTeamEndpoint() {
+                    const login = document.getElementById('login').value;
+                    const password = document.getElementById('password').value;
+                    if (!login) {
+                        alert('Podaj login!');
+                        return;
+                    }
+                    if (!password) {
+                        alert('Podaj hasło!');
+                        return;
+                    }
+                    
+                    await testEndpoint(`/api/employees/employee/${login}/${password}`, 'GET', null, 'response3');
+                }
+            
+            </script>
+        </body>
+        </html>

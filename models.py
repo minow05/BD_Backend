@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import enum
+from datetime import datetime
+from faker import Faker
 
 db = SQLAlchemy()
 
@@ -179,9 +181,11 @@ class TeamTask(db.Model):
     __tablename__ = "team_task"
     id = db.Column(db.Integer, primary_key=True)
 
+    task_id = db.Column(db.Integer, db.ForeignKey("task.id"))
     section_task_id = db.Column(db.Integer, db.ForeignKey("section_task.id"))
     team_id = db.Column(db.Integer, db.ForeignKey("team.id"))
 
+    task = db.relationship("Task")
     section_task = db.relationship("SectionTask")
     team = db.relationship("Team")
 
@@ -193,8 +197,10 @@ class EmployeeTask(db.Model):
     __tablename__ = "employee_task"
     id = db.Column(db.Integer, primary_key=True)
 
+    task_id = db.Column(db.Integer, db.ForeignKey("task.id"))
     team_task_id = db.Column(db.Integer, db.ForeignKey("team_task.id"))
     team_member_id = db.Column(db.Integer, db.ForeignKey("team_member.id"))
 
+    task = db.relationship("Task")
     team_task = db.relationship("TeamTask")
     team_member = db.relationship("TeamMember")
