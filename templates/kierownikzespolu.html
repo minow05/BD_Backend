@@ -102,9 +102,8 @@
         </head>
         <body>
             <div class="container">
-                <h1>🎮 Game Studio API - Demo</h1>
-                
-                <!-- Endpoint 1: Pobierz wszystkich pracowników -->
+                <h1>Panel kierownika zespołu</h1>
+
                 <div class="endpoint-card">
                     <div class="team-box">
                         <button onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
@@ -130,7 +129,7 @@
                     if (type == 'team')
                     {
                         const id = "{{id}}"
-                      location.href =`/team/${id}`;  
+                      location.href =`/team/employees/${id}`;  
                     }
 
                 }

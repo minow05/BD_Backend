@@ -1,18 +1,19 @@
-
 from faker import Faker
 from werkzeug.security import generate_password_hash
 import random
+from datetime import datetime
 
 def create_sample_data(app):
-    """Funkcja generująca przykładowe dane"""
     with app.app_context():
         from models import db, Address, Employee, StudioHead, SectionManager, \
             TeamManager, TeamMember, Section, Team, TeamMembership, Game, Task, \
             SectionTask, TeamTask, EmployeeTask, TaskStatus
+        
         db.drop_all()
         db.create_all()
+        
         fake = Faker('pl_PL')
-   
+
         addresses = []
         for _ in range(25):
             address = Address(
@@ -26,7 +27,7 @@ def create_sample_data(app):
         
         db.session.add_all(addresses)
         db.session.commit()
-      
+
         studio_head = StudioHead(
             first_name="Adam",
             last_name="Nowak",
@@ -40,7 +41,7 @@ def create_sample_data(app):
             address_id=addresses[0].id
         )
         db.session.add(studio_head)
-       
+        
         section_managers = []
         sm_names = [
             ("Anna", "Kowalska"),
@@ -64,7 +65,7 @@ def create_sample_data(app):
             section_managers.append(manager)
         
         db.session.add_all(section_managers)
-
+        
         team_managers = []
         tm_names = [
             ("Krzysztof", "Jankowski"),
@@ -93,7 +94,7 @@ def create_sample_data(app):
         db.session.add_all(team_managers)
         
         team_members = []
-        for i in range(10):
+        for i in range(15):
             first_name = fake.first_name()
             last_name = fake.last_name()
             member = TeamMember(
@@ -112,7 +113,7 @@ def create_sample_data(app):
         
         db.session.add_all(team_members)
         db.session.commit()
-       
+
         sections = []
         section_data = [
             "Programowanie",
@@ -149,7 +150,7 @@ def create_sample_data(app):
             "Gameplay"
         ]
         
-        for i, name in enumerate(team_names[:8]):  # 8 zespołów
+        for i, name in enumerate(team_names[:8]):
             team = Team(
                 name=name,
                 section_id=sections[i % len(sections)].id,
@@ -159,7 +160,7 @@ def create_sample_data(app):
         
         db.session.add_all(teams)
         db.session.commit()
-     
+
         memberships = []
         
         available_members = list(range(len(team_members)))
@@ -181,18 +182,12 @@ def create_sample_data(app):
         db.session.add_all(memberships)
         db.session.commit()
 
-        games = []
-        
-        for i in range(0,2):  # 2 gry
-            game = Game(
-                studio_head_id=studio_head.id
-            )
-            games.append(game)
-        
-        db.session.add_all(games)
+        game = Game(
+            studio_head_id=studio_head.id
+        )
+        db.session.add(game)
         db.session.commit()
-        
-        tasks = []
+
         task_descriptions = [
             "Implementacja systemu zapisu gry",
             "Optymalizacja renderowania terenu",
@@ -213,80 +208,111 @@ def create_sample_data(app):
             "Optymalizacja zużycia pamięci",
             "Tworzenie cutscenek",
             "System szybkiej podróży",
-            "Implementacja minimapy"
+            "Implementacja minimapy",
+            "Implementacja systemu czatowania",
+            "Optymalizacja ładowania tekstur",
+            "Stworzenie systemu osiągnięć",
+            "Implementacja mikrotransakcji",
+            "Tworzenie systemu przygód pobocznych",
+            "Balansowanie trudności",
+            "Implementacja trybu współpracy",
+            "Tworzenie edytora poziomów",
+            "System zapisu postępu",
+            "Implementacja leaderboardów"
         ]
         
-        for i, desc in enumerate(task_descriptions):
-            start_date = fake.date_between(start_date='-3m', end_date='today')
-            end_date = fake.date_between(start_date='today', end_date='+6m')
-            
-            task = Task(
-                description=desc,
-                start_date=start_date.strftime('%Y-%m-%d'),
-                end_date=end_date.strftime('%Y-%m-%d'),
-                status=random.choice(list(TaskStatus))
-            )
-            tasks.append(task)
-        
-        db.session.add_all(tasks)
-        db.session.commit()
-        
         section_tasks = []
-        
-        for i, task in enumerate(tasks[:12]):  
-            section_task = SectionTask(
-                task_id=task.id,
-                section_id=sections[i % len(sections)].id,
-                game_id=games[i % len(games)].id
-            )
-            section_tasks.append(section_task)
+
+        for i, section in enumerate(sections):
+            num_section_tasks = random.randint(2, 3)
+            
+            for j in range(num_section_tasks):
+                desc_idx = (i * 3 + j) % len(task_descriptions)
+                task = Task(
+                    description=f"[SEKCJA] {task_descriptions[desc_idx]}",
+                    start_date=fake.date_between(start_date='-3m', end_date='today').strftime('%Y-%m-%d'),
+                    end_date=fake.date_between(start_date='today', end_date='+6m').strftime('%Y-%m-%d'),
+                    status=random.choice(list(TaskStatus))
+                )
+                db.session.add(task)
+                db.session.flush() 
+                section_task = SectionTask(
+                    task_id=task.id,
+                    section_id=section.id,
+                    game_id=game.id
+                )
+                section_tasks.append(section_task)
         
         db.session.add_all(section_tasks)
         db.session.commit()
-       
+
         team_tasks = []
-        
-        
-        team_task = TeamTask(
-            task_id=tasks[i].id,
-            section_task_id=section_task.id,
-            team_id=teams[i % len(teams)].id
-        )
-        team_tasks.append(team_task)
+
+        for i, team in enumerate(teams):
+            num_team_tasks = random.randint(3, 5)
+            
+            for j in range(num_team_tasks):
+                desc_idx = (i * 5 + j + 10) % len(task_descriptions) 
+                task = Task(
+                    description=f"[ZESPÓŁ {team.name}] {task_descriptions[desc_idx]}",
+                    start_date=fake.date_between(start_date='-2m', end_date='today').strftime('%Y-%m-%d'),
+                    end_date=fake.date_between(start_date='today', end_date='+3m').strftime('%Y-%m-%d'),
+                    status=random.choice(list(TaskStatus))
+                )
+                db.session.add(task)
+                db.session.flush()
+
+                matching_section_tasks = [st for st in section_tasks if st.section_id == team.section_id]
+                section_task_for_team = random.choice(matching_section_tasks) if matching_section_tasks else None
+
+                team_task = TeamTask(
+                    task_id=task.id,
+                    section_task_id=section_task_for_team.id if section_task_for_team else None,
+                    team_id=team.id
+                )
+                team_tasks.append(team_task)
         
         db.session.add_all(team_tasks)
         db.session.commit()
-      
+
         employee_tasks = []
-        
-        for team_task in team_tasks:
-            # Znajdź członków tego zespołu
-            team_id = team_task.team_id
-            team_member_ids = [
-                m.team_member_id for m in memberships 
-                if m.team_id == team_id
-            ]
+
+        team_member_with_team = {}
+        for membership in memberships:
+            if membership.team_member_id not in team_member_with_team:
+                team_member_with_team[membership.team_member_id] = []
+            team_member_with_team[membership.team_member_id].append(membership.team_id)
+
+        for member_id, team_ids in team_member_with_team.items():
+            num_employee_tasks = random.randint(1, 3)
             
-          
-            num_assignments = min(random.randint(1, 2), len(team_member_ids))
-            selected_members = random.sample(team_member_ids, num_assignments)
-            
-            for member_id in selected_members:
-                emp_task = EmployeeTask(
-                    task_id=team_task.task_id,
-                    team_task_id=team_task.id,
-                    team_member_id=member_id
-                )
-                employee_tasks.append(emp_task)
+            for j in range(num_employee_tasks):
+
+                team_id = random.choice(team_ids)
+
+                team_tasks_for_team = [tt for tt in team_tasks if tt.team_id == team_id]
+                
+                if team_tasks_for_team:
+                    team_task = random.choice(team_tasks_for_team)
+                    
+                    task = Task(
+                        description=f"[PRACOWNIK] Szczegół: {task_descriptions[(member_id + j) % len(task_descriptions)]}",
+                        start_date=fake.date_between(start_date='-1m', end_date='today').strftime('%Y-%m-%d'),
+                        end_date=fake.date_between(start_date='today', end_date='+1m').strftime('%Y-%m-%d'),
+                        status=random.choice(list(TaskStatus))
+                    )
+                    db.session.add(task)
+                    db.session.flush()
+                    
+
+                    emp_task = EmployeeTask(
+                        task_id=task.id,  
+                        team_task_id=team_task.id,
+                        team_member_id=member_id
+                    )
+                    employee_tasks.append(emp_task)
         
         db.session.add_all(employee_tasks)
         db.session.commit()
-        
-        
-        print("\nDANE LOGOWANIA DLA TESTÓW:")
-        print("Studio Head:   login: anowak, password: StudioHead2024!")
-        print("Section Manager 1: login: akowalska, password: SmPass1!")
-        print("Team Manager 1:    login: tm01, password: TmPass1!")
-        print("Team Member 1:     login: member01, password: Member1!")
         
         return True

@@ -114,6 +114,44 @@
             </div>
             
             <script>
+                async function changestatus(task_id) {
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };
+                    status = document.getElementById("status"+task_id).value
+                    const response = await fetch(`/api/tasks/${task_id}`, options);
+                    const result = await response.json();
+                    if(result[0].status !="BLOCKED")
+                    {
+                    try {
+
+                        const response = await fetch(`/api/tasks/${task_id}/status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                status: status
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        generateContent()
+                        return result;
+                    } catch (error) {
+                        throw error;
+                        }
+                    }
+                    else
+                    {
+                        response_box = document.getElementById("response")
+                        response_box.style.display = "block"
+                        response_box.innerHTML = `<strong>Tylko kierownik sekcji może zmienić status tego zadania!</strong>`;
+                    }
+                }
                 async function generateContent() {
                     const options = {
                         method: "GET",
@@ -127,10 +165,11 @@
                         const response = await fetch(`/api/tasks/team/${teamid}`, options);
                         const result = await response.json();
                         block = ""
-                        alert(result.length)
                         for (i = 0; i<result.length; i++)
                         {
-                            block+="<div class='team-box'><p>Id zadania: "+result[i].id+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+result[i].status+"</p></div>";
+                            block+="<div class='team-box'><p>Id zadania: "+result[i].id+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+result[i].status+"</p>";
+                            block+="<select id ='status"+result[i].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result[i].id+")'>Zmień status</button>";
+                            block+="<div id ='response'></div></div>"
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

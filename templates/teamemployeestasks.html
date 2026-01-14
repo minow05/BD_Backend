@@ -103,8 +103,9 @@
         </head>
         <body onload="generateContent()">
             <div class="container">
-                <h1>Zadania użytkownika</h1>
-
+                <h1>Zadania pracowników zespołu</h1>
+                
+                <!-- Endpoint 1: Pobierz wszystkich pracowników -->
                 <div id="endpoint-card">
 
                 </div>
@@ -113,20 +114,13 @@
             </div>
             
             <script>
-                async function changestatus(task_id) {
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    };
-                    status = document.getElementById("status"+task_id).value
-                    const response = await fetch(`/api/tasks/${task_id}`, options);
-                    const result = await response.json();
-                    if(result[0].status !="BLOCKED")
-                    {
+                async function changestatus(task_id,done) {
+                    
                     try {
-
+                        if(done==0)
+                        {status = document.getElementById("status"+task_id).value;}
+                        else
+                        {status = "BLOCKED"}
                         const response = await fetch(`/api/tasks/${task_id}/status`, {
                             method: 'PATCH',
                             headers: {
@@ -143,13 +137,6 @@
                     } catch (error) {
                         throw error;
                         }
-                    }
-                    else
-                    {
-                        response_box = document.getElementById("response")
-                        response_box.style.display = "block"
-                        response_box.innerHTML = `<strong>Tylko twój przełożony może zmienić status tego zadania!</strong>`;
-                    }
                 }
                 async function generateContent() {
                     const options = {
@@ -157,20 +144,27 @@
                         headers: {
                             'Content-Type': 'application/json',
                         }
-                    };
+                    };  
                     try {
-                        
-                        id = "{{id}}"
-                        const response = await fetch(`/api/tasks/employee/${id}`, options);
-                        const result = await response.json();
+                        team_id = "{{id}}";
+                        response = await fetch(`/api/employees/team/${team_id}`, options);
+                        result = await response.json();
                         block = ""
                         
                         for (i = 0; i<result.length; i++)
                         {
-                            block+="<div class='team-box'><p>Id zadania: "+result[i].id+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+result[i].status
-                            block+="</p><p>Data rozpoczęcia: "+result[i].start_date+"</p><p>Data zakończenia: "+result[i].end_date+"</p>";
-                            block+="<select id ='status"+result[i].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result[i].id+")'>Zmień status</button>";
+
+                            id = result[i].id;
+                            response2 = await fetch(`/api/tasks/employee/${id}`, options);
+                            result2 = await response2.json();
+                         
+                            for (j = 0; j<result2.length; j++)
+                            {
+                            block+="<div class='team-box'><p>Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>Zadanie: "+result2[j].id+" "+result2[j].description+" status: "+result2[j].status;
+                            block+="<p><select id ='status"+result2[j].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result2[j].id+",0)'>Zmień status</button><button onclick='changestatus("+result2[j].id+",1)'>Zatwierdź zadanie</button></p></div>";
                             block+="<div id ='response'></div></div>"
+                            }
+                            result2 = []
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

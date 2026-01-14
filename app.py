@@ -78,9 +78,13 @@ def create_app():
     def team_tasks(teamid):
         return render_template("teamtasks.html", id = teamid)
     
-    @app.route('/team/<myid>')
+    @app.route('/team/employees/<myid>')
     def team_employees(myid):
         return render_template("teamemployees.html", id = myid)
+    
+    @app.route('/team/employees/tasks/<teamid>')
+    def team_employees_tasks(teamid):
+        return render_template("teamemployeestasks.html", id = teamid)
     
     return app
 if __name__ == "__main__":

@@ -81,6 +81,8 @@ def get_tasks_for_employee(employee_id):
         {
             "id": t.id,
             "description": t.description,
+            "start_date": t.start_date,
+            "end_date": t.end_date,
             "status": t.status.value
         }
         for t in tasks
@@ -99,6 +101,8 @@ def get_tasks_for_team(team_id):
         {
             "id": t.id,
             "description": t.description,
+            "start_date": t.start_date,
+            "end_date": t.end_date,
             "status": t.status.value
         }
         for t in tasks
@@ -117,6 +121,8 @@ def get_tasks_for_section(section_id):
         {
             "id": t.id,
             "description": t.description,
+            "start_date": t.start_date,
+            "end_date": t.end_date,
             "status": t.status.value
         }
         for t in tasks
@@ -130,6 +136,8 @@ def get_all_tasks():
         {
             "id": t.id,
             "description": t.description,
+            "start_date": t.start_date,
+            "end_date": t.end_date,
             "status": t.status.value
         }
         for t in tasks
@@ -139,13 +147,12 @@ def get_all_tasks():
 def get_task_details(task_id):
     task = Task.query.get_or_404(task_id)
 
-    return jsonify({
+    return jsonify([{
         "id": task.id,
-        "title": task.title,
         "description": task.description,
-        "status": task.status,
-        "assigned_team_id": task.assigned_team_id
-    })
+        "status": task.status.value,
+
+    }])
 
 @tasks_bp.patch("/<int:task_id>/status")
 def update_task_status(task_id):
