@@ -13,9 +13,8 @@
                 
                 <div class="endpoint-card">
                         <div class="team-box">
-                        <button onclick="chooseOption('team')">Wyświetl zadania zespołu</button>
+                        <button onclick="chooseOption('section')">Wyświetl zadania sekcji</button>
                         <button onclick="chooseOption('your')">Wyświetl swoje zadania</button>
-                        <button onclick="chooseOption('employee')">Zarządzaj zadaniami pracowników</button>
                     </div>
                 </div>
                 
@@ -32,20 +31,16 @@
                         id = "{{id}}"
                         const response = await fetch(`/api/employees/${id}/context`, options);
                         const result = await response.json();
-                        team_id = result.team_id;
+                        section_id = result.section_id;
 
-                    if (type == 'team')
+                    if (type == 'section')
                     {
-                        location.href =`/team-tasks/${team_id}/team`;  
+                        location.href =`/section-tasks/${section_id}`;  
                     }
                     if (type == 'your')
                     {
                         const id = "{{id}}"
                       location.href =`/your-tasks/${id}`;  
-                    }
-                    if (type == 'employee')
-                    {
-                      location.href =`/team/employees/tasks/${team_id}`;  
                     }
 
                 }

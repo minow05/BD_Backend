@@ -74,13 +74,25 @@ def create_app():
     def manage_tasks(myid):
         return render_template("managetasks.html", id = myid)
     
-    @app.route('/team-tasks/<teamid>')
-    def team_tasks(teamid):
-        return render_template("teamtasks.html", id = teamid)
+    @app.route('/manage-tasks-section/<myid>')
+    def manage_tasks_section(myid):
+        return render_template("managetaskssection.html", id = myid)
     
-    @app.route('/team/employees/<myid>')
-    def team_employees(myid):
-        return render_template("teamemployees.html", id = myid)
+    @app.route('/team-tasks/<teamid>/<status>')
+    def team_tasks(teamid, status):
+        return render_template("teamtasks.html", id = teamid, status = status)
+    
+    @app.route('/section-tasks/<sectionid>')
+    def section_tasks(sectionid):
+        return render_template("sectiontasks.html", id = sectionid)
+    
+    @app.route('/team/employees/<teamid>')
+    def team_employees(teamid):
+        return render_template("teamemployees.html", id = teamid)
+    
+    @app.route('/section/teams/<sectionid>')
+    def section_teams(sectionid):
+        return render_template("sectionteams.html", id = sectionid)
     
     @app.route('/team/employees/tasks/<teamid>')
     def team_employees_tasks(teamid):

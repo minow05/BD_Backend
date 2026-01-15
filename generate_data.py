@@ -314,5 +314,10 @@ def create_sample_data(app):
         
         db.session.add_all(employee_tasks)
         db.session.commit()
-        
+        print("\n🔑 DANE LOGOWANIA DLA TESTÓW:")
+        print("="*40)
+        print("Studio Head:   login: anowak, password: StudioHead2024!")
+        print("Section Manager 1: login: akowalska, password: SmPass1!")
+        print("Team Manager 1:    login: tm01, password: TmPass1!")
+        print("Team Member 1:     login: member01, password: Member1!")
         return True

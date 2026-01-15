@@ -4,101 +4,7 @@
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Panel pracownika</title>
-            <style>
-                body {
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    padding: 20px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    min-height: 100vh;
-                }
-                
-                .container {
-                    background: white;
-                    border-radius: 15px;
-                    padding: 40px;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                }
-                
-                h1 {
-                    color: #2c3e50;
-                    text-align: center;
-                    margin-bottom: 40px;
-                }
-                
-                .endpoint-card {
-                    background: #f8f9fa;
-                    border-left: 5px solid #3498db;
-                    padding: 20px;
-                    margin-bottom: 20px;
-                    border-radius: 8px;
-                    transition: transform 0.3s;
-                    background: #34495e;
-                    display: flex;
-                    height: 500px;
-                    align-items: center;
-                }
-                
-                
-                .method {
-                    display: inline-block;
-                    padding: 5px 15px;
-                    border-radius: 5px;
-                    font-weight: bold;
-                    margin-right: 10px;
-                }
-                
-                .example {
-                    background: #f1f2f6;
-                    padding: 15px;
-                    border-radius: 5px;
-                    margin: 10px 0;
-                    font-family: 'Courier New', monospace;
-                    font-size: 14px;
-                }
-                
-                button {
-                    background: #3498db;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    margin-right: 10px;
-                    transition: background 0.3s;
-                }
-                
-                button:hover {
-                    background: #2980b9;
-                }
-                
-                .response {
-                    margin-top: 15px;
-                    padding: 15px;
-                    background: #e8f4f8;
-                    border-radius: 5px;
-                    display: none;
-                    max-height: 300px;
-                    overflow-y: auto;
-                }
-            
-                
-                .team-box {
-                    flex: 1;
-                    
-                    color: black;
-                    padding: 20px;
-                    border-radius: 10px;
-                    text-align: center;
-                    
-                }
-                
-                .team-box h3 {
-                    color: #3498db;
-                    margin-bottom: 15px;
-                }
-            </style>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
         </head>
         <body>
             <div class="container">
@@ -128,8 +34,17 @@
                     }
                     if (type == 'team')
                     {
-                        const id = "{{id}}"
-                      location.href =`/team/employees/${id}`;  
+                        const options = {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                        };  
+                        id = "{{id}}"
+                        const response1 = await fetch(`/api/employees/${id}/context`, options);
+                        const result1 = await response1.json();
+                        teamid = result1.team_id
+                      location.href =`/team/employees/${teamid}`;  
                     }
 
                 }

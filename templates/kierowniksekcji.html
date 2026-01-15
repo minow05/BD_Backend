@@ -1,1 +1,54 @@
-kierownik sekcji {{id}}
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel kierownika sekcji</title>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+        </head>
+        <body>
+            <div class="container">
+                <h1>Panel kierownika sekcji</h1>
+
+                <div class="endpoint-card">
+                    <div class="team-box">
+                        <button onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                        <button onclick="chooseOption('task')">Zarządzaj zadaniami</button>
+                        <button onclick="chooseOption('section')">Zarządzaj sekcją</button>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <script>
+                async function chooseOption(type) {
+                    if (type == 'data')
+                    {
+                        const id = "{{id}}"
+                        location.href =`/your-data/${id}`;  
+                    }
+                    if (type == 'task')
+                    {
+                        const id = "{{id}}"
+                      location.href =`/manage-tasks-section/${id}`;  
+                    }
+                    if (type == 'section')
+                    {
+                        const options = {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };
+                        const response1 = await fetch(`/api/employees/${id}/context`, options);
+                        const result1 = await response1.json();
+                        sectionid = result1.section_id;
+                        const id = "{{id}}"
+                        location.href =`/section/teams/${sectionid}`;  
+                    }
+
+                }
+            
+            </script>
+        </body>
+        </html>

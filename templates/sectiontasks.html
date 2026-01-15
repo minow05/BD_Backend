@@ -8,7 +8,7 @@
         </head>
         <body onload="generateContent()">
             <div class="container">
-                <h1>Zadania zespołu nr {{id}}</h1>
+                <h1>Zadania sekcji nr {{id}}</h1>
 
                 <div id="endpoint-card">
 
@@ -18,20 +18,17 @@
             </div>
             
             <script>
-                async function changestatus(task_id,done) {
+                async function changestatus(task_id) {
                     const options = {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json',
                         }
                     };
-                    if(done==0)
-                        {status = document.getElementById("status"+task_id).value;}
-                        else
-                        {status = "BLOCKED"}
+                    status = document.getElementById("status"+task_id).value
                     const response = await fetch(`/api/tasks/${task_id}`, options);
                     const result = await response.json();
-                    if("{{status}}" == "section" || result[0].status != "BLOCKED")
+                    if(result[0].status !="BLOCKED")
                     {
                     try {
 
@@ -54,7 +51,7 @@
                     }
                     else
                     {
-                        response_box = document.getElementById("response"+task_id)
+                        response_box = document.getElementById("response")
                         response_box.style.display = "block"
                         response_box.innerHTML = `<strong>Tylko kierownik sekcji może zmienić status tego zadania!</strong>`;
                     }
@@ -68,20 +65,15 @@
                     };
                     try {
                         
-                        teamid = "{{id}}"
-                        const response = await fetch(`/api/tasks/team/${teamid}`, options);
+                        sectionid = "{{id}}"
+                        const response = await fetch(`/api/tasks/section/${sectionid}`, options);
                         const result = await response.json();
                         block = ""
-                        
                         for (i = 0; i<result.length; i++)
                         {
                             block+="<div class='team-box'><p>Id zadania: "+result[i].id+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+result[i].status+"</p>";
-                            block+="<select id ='status"+result[i].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result[i].id+",0)'>Zmień status</button>";
-                            if("{{status}}"=="section")
-                            {
-                                block+="<button onclick='changestatus("+result[i].id+",1)'>Zatwierdź zadanie</button>";
-                            }
-                            block+="<div id ='response"+result[i].id+"'></div></div>"
+                            block+="<select id ='status"+result[i].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result[i].id+")'>Zmień status</button>";
+                            block+="<div id ='response'></div></div>"
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');
