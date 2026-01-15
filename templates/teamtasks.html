@@ -18,6 +18,31 @@
             </div>
             
             <script>
+                async function addTask() {
+                    section_task_id = document.getElementById("task").value;
+                    tresc = document.getElementById("text").value;
+                    team_id = "{{id}}";
+                    try {
+                const response = await fetch('/api/tasks/team', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({description: tresc, team_id: team_id, section_task_id: section_task_id})
+                });
+                
+                if (response.ok) {
+                    document.getElementById('result').innerHTML = 
+                        `<p style="color: green;">Dodano zadanie dla pracownik nr ${id}</p>`;
+                        generateContent();
+                } else {
+                    document.getElementById('result').innerHTML = 
+                        `<p style="color: red;">Błąd: ${response.status}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<p style="color: orange;">Błąd: ${error.message}</p>`;
+            }
+                }
+
                 async function changestatus(task_id,done) {
                     const options = {
                         method: "GET",
@@ -85,7 +110,8 @@
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');
-
+                        if ("{{status}}"=="section")
+                            block+="<p>Numer zadania sekcji: <input id = 'task' type='number'>Treść zadania: <input id = 'text' type='text'><button onclick='addTask()'>Dodaj zadanie dla pracownika</button></p><div id = 'result'></div>"
                         responseDiv.style.display = 'block';
 
                         responseDiv.innerHTML = block;

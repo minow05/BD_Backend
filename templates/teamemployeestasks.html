@@ -13,11 +13,35 @@
                 <div id="endpoint-card">
 
                 </div>
-            
                 
             </div>
             
             <script>
+                async function addTask() {
+                    id = document.getElementById("employee").value;
+                    team_task_id = document.getElementById("task").value;
+                    tresc = document.getElementById("text").value;
+                    team_id = "{{id}}";
+                    try {
+                const response = await fetch('/api/tasks/employee-task', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({description: tresc, team_member_id: id, team_task_id: team_task_id})
+                });
+                
+                if (response.ok) {
+                    document.getElementById('result').innerHTML = 
+                        `<p style="color: green;">Dodano zadanie dla pracownik nr ${id}</p>`;
+                        generateContent();
+                } else {
+                    document.getElementById('result').innerHTML = 
+                        `<p style="color: red;">Błąd: ${response.status}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<p style="color: orange;">Błąd: ${error.message}</p>`;
+            }
+                }
                 async function changestatus(task_id,done) {
                     
                     try {
@@ -64,7 +88,7 @@
                          
                             for (j = 0; j<result2.length; j++)
                             {
-                            block+="<div class='team-box'><p>Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>Zadanie: "+result2[j].id+" "+result2[j].description+" status: "+result2[j].status;
+                            block+="<div class='team-box'><p>"+id+" Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>Zadanie: "+result2[j].id+" "+result2[j].description+" status: "+result2[j].status;
                             block+="<p><select id ='status"+result2[j].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result2[j].id+",0)'>Zmień status</button><button onclick='changestatus("+result2[j].id+",1)'>Zatwierdź zadanie</button></p></div>";
                             block+="<div id ='response'></div></div>"
                             }

@@ -29,10 +29,8 @@
                             'Content-Type': 'application/json',
                         }
                     };
-                        id = "{{id}}"
-                        const response = await fetch(`/api/employees/${id}/context`, options);
-                        const result = await response.json();
-                        teamId = result.team_id;
+                        
+                        teamId = "{{id}}";
             try {
                 const response = await fetch('/api/team_memberships/', {
                     method: 'POST',
@@ -90,7 +88,7 @@
                         
                         for (i = 0; i<result2.length; i++)
                         {
-                            block+="<div class='team-box'><p>Imię i nazwisko: "+result2[i].first_name+" "+result2[i].last_name+"<button onclick='removeEmployeeFromTeam("+result2[i].id+","+team_id+")'>Usuń z zespołu</button></p></div>";
+                            block+="<div class='team-box'><p>"+result2[i].id+" Imię i nazwisko: "+result2[i].first_name+" "+result2[i].last_name+"<button onclick='removeEmployeeFromTeam("+result2[i].id+","+team_id+")'>Usuń z zespołu</button></p></div>";
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

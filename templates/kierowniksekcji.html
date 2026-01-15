@@ -40,10 +40,11 @@
                             'Content-Type': 'application/json',
                         }
                     };
+                        const id = "{{id}}"
                         const response1 = await fetch(`/api/employees/${id}/context`, options);
                         const result1 = await response1.json();
                         sectionid = result1.section_id;
-                        const id = "{{id}}"
+                        
                         location.href =`/section/teams/${sectionid}`;  
                     }
 

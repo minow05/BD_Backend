@@ -296,7 +296,7 @@ def create_sample_data(app):
                     team_task = random.choice(team_tasks_for_team)
                     
                     task = Task(
-                        description=f"[PRACOWNIK] Szczegół: {task_descriptions[(member_id + j) % len(task_descriptions)]}",
+                        description=f"[PRACOWNIK] Szczegóły: {task_descriptions[(member_id + j) % len(task_descriptions)]}",
                         start_date=fake.date_between(start_date='-1m', end_date='today').strftime('%Y-%m-%d'),
                         end_date=fake.date_between(start_date='today', end_date='+1m').strftime('%Y-%m-%d'),
                         status=random.choice(list(TaskStatus))

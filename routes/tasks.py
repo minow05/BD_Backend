@@ -1,9 +1,11 @@
 from flask import Blueprint, request, jsonify
+from faker import Faker
 from models import (
     db, Task, SectionTask, TeamTask, EmployeeTask, TaskStatus
 )
 
 tasks_bp = Blueprint("tasks", __name__)
+fake = Faker('pl_PL')
 
 
 @tasks_bp.post("/section")
@@ -12,6 +14,8 @@ def create_section_task():
 
     task = Task(
         description=data["description"],
+        start_date=fake.date_between(start_date='-1m', end_date='today').strftime('%Y-%m-%d'),
+        end_date=fake.date_between(start_date='today', end_date='+1m').strftime('%Y-%m-%d'),
         status=TaskStatus.TODO
     )
     db.session.add(task)
@@ -37,6 +41,8 @@ def create_team_task():
         description=data["description"],
         status=TaskStatus.TODO
     )
+    db.session.add(task)
+    db.session.flush()
     team_task = TeamTask(
         task_id=task.id,
         section_task_id=data["section_task_id"],
@@ -49,14 +55,18 @@ def create_team_task():
     return jsonify({"id": team_task.id}), 201
 
 
-@tasks_bp.post("/employee")
+@tasks_bp.post("/employee-task")
 def create_employee_task():
     data = request.json
 
     task = Task(
         description=data["description"],
+        start_date=fake.date_between(start_date='-1m', end_date='today').strftime('%Y-%m-%d'),
+        end_date=fake.date_between(start_date='today', end_date='+1m').strftime('%Y-%m-%d'),
         status=TaskStatus.TODO
     )
+    db.session.add(task)
+    db.session.flush()
     employee_task = EmployeeTask(
         task_id=task.id,
         team_task_id=data["team_task_id"],
