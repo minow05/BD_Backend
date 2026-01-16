@@ -51,7 +51,7 @@
                     }
                     else
                     {
-                        response_box = document.getElementById("response")
+                        response_box = document.getElementById("response"+task_id)
                         response_box.style.display = "block"
                         response_box.innerHTML = `<strong>Tylko twój przełożony może zmienić status tego zadania!</strong>`;
                     }
@@ -75,7 +75,7 @@
                             block+="<div class='team-box'><p>Id zadania: "+result[i].id+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+result[i].status
                             block+="</p><p>Data rozpoczęcia: "+result[i].start_date+"</p><p>Data zakończenia: "+result[i].end_date+"</p>";
                             block+="<select id ='status"+result[i].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result[i].id+")'>Zmień status</button>";
-                            block+="<div id ='response'></div></div>"
+                            block+="<div id ='response"+result[i].id+"'></div></div>"
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');
