@@ -82,9 +82,9 @@ def create_app():
     def team_tasks(teamid, status):
         return render_template("teamtasks.html", id = teamid, status = status)
     
-    @app.route('/section-tasks/<sectionid>')
-    def section_tasks(sectionid):
-        return render_template("sectiontasks.html", id = sectionid)
+    @app.route('/section-tasks/<sectionid>/<status>')
+    def section_tasks(sectionid, status):
+        return render_template("sectiontasks.html", id = sectionid, status = status)
     
     @app.route('/team/employees/<teamid>')
     def team_employees(teamid):
@@ -97,6 +97,14 @@ def create_app():
     @app.route('/team/employees/tasks/<teamid>')
     def team_employees_tasks(teamid):
         return render_template("teamemployeestasks.html", id = teamid)
+    
+    @app.route('/allemployees')
+    def allemployees():
+        return render_template("allemployees.html")
+    
+    @app.route('/sections')
+    def sections():
+        return render_template("sections.html")
     
     return app
 if __name__ == "__main__":

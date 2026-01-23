@@ -3,7 +3,6 @@ from models import db, Employee, TeamMember, TeamMembership, Team, StudioHead, S
 from werkzeug.security import check_password_hash
 employees_bp = Blueprint("employees", __name__)
 
-
 @employees_bp.post("/")
 def create_employee():
     data = request.json
@@ -23,16 +22,37 @@ def create_employee():
 
 @employees_bp.get("/")
 def get_employees():
-    employees = TeamMember.query.all()
-
-    return jsonify([
-        {
-            "id": e.id,
-            "first_name": e.first_name,
-            "last_name": e.last_name
-        }
-        for e in employees
-    ])
+    employees = Employee.query.all()
+    
+    # Pobierz wszystkie ID z każdej tabeli specjalizacji
+    studio_head_ids = {sh.id for sh in StudioHead.query.all()}
+    section_manager_ids = {sm.id for sm in SectionManager.query.all()}
+    team_manager_ids = {tm.id for tm in TeamManager.query.all()}
+    
+    result = []
+    for employee in employees:
+        position = "pracownik"
+        employee_id = employee.id
+        
+        if employee_id in studio_head_ids:
+            continue
+        elif employee_id in section_manager_ids:
+            position = "kierownik sekcji"
+        elif employee_id in team_manager_ids:
+            position = "kierownik zespołu"
+        
+        result.append({
+            "id": employee.id,
+            "first_name": employee.first_name,
+            "last_name": employee.last_name,
+            "pesel": employee.pesel,
+            "phone": employee.phone,
+            "hire_date": employee.hire_date,
+            "fire_date": employee.fire_date,
+            "position": position
+        })
+    
+    return jsonify(result)
 @employees_bp.get("/employee/id/<int:id>")
 def get_employee_id(id):
 
@@ -40,6 +60,21 @@ def get_employee_id(id):
         db.session.query(Employee)
         .filter(Employee.id == id)
     )
+    for employee in employeee:
+        position = "pracownik"
+        studioHead = StudioHead.query.all()
+        sectionManager = SectionManager.query.all()
+        teamManager = TeamManager.query.all()
+        id = employee.id
+        for e in studioHead:
+            if id == e.id:
+                position = "szef studia"
+        for e in sectionManager:
+            if id == e.id:
+                position = "kierownik sekcji"
+        for e in teamManager:
+            if id == e.id:
+                position = "kierownik zespołu"
     return jsonify([
         {
             "id": employee.id,
@@ -47,10 +82,10 @@ def get_employee_id(id):
             "last_name": employee.last_name,
             "pesel": employee.pesel,
             "phone": employee.phone,
-            "email": employee.email,
             "hire_date": employee.hire_date,
         }
-        for employee in employeee   
+        for employee in employeee
+               
     ])
     
 @employees_bp.get("/employee/<string:employee_login>/<string:employee_password>")
@@ -87,7 +122,6 @@ def get_employee(employee_login, employee_password):
                 "last_name": employee.last_name,
                 "pesel": employee.pesel,
                 "phone": employee.phone,
-                "email": employee.email,
                 "hire_date": employee.hire_date,
             }
             for employee in employeee   
@@ -183,7 +217,7 @@ def get_employee_context(team_member_id):
 
 @employees_bp.delete("/<int:employee_id>")
 def fire_employee(employee_id):
-    employee = TeamMember.query.get_or_404(employee_id)
+    employee = Employee.query.get_or_404(employee_id)
     db.session.delete(employee)
     db.session.commit()
     return jsonify({"status": "deleted"})

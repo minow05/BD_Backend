@@ -8,7 +8,7 @@
         </head>
         <body onload="generateContent()">
             <div class="container">
-                <h1>Zespoły sekcji nr {{id}}</h1>
+                <h1>Zarządzanie sekcjami</h1>
 
                 <div id="endpoint-card">
 
@@ -18,13 +18,13 @@
             </div>
             
             <script>
-
                 async function redirect(type, id) {
-                    if(type=="employee")
-                        location.href =`/team/employees/${id}`;
+                    if(type=="section")
+                        location.href = `/section/teams/${id}`;
                     if(type=="task")
-                        location.href = `/team-tasks/${id}/section`;
+                        location.href = `/section-tasks/${id}/chief`;
                 }
+
                 async function generateContent() {
                     const options = {
                         method: "GET",
@@ -33,16 +33,15 @@
                         }
                     };
                     try {
-                        sectionid = "{{id}}"
-                          
-                        const response2 = await fetch(`/api/sections/${sectionid}/teams`, options);
-                        const result2 = await response2.json();
+
+                        const response = await fetch(`/api/sections/`, options);
+                        const result = await response.json();
                         block = ""
-                        for (i = 0; i<result2.length; i++)
+                        
+                        for (i = 0; i<result.length; i++)
                         {
-                            block+="<div class='team-box'><p>Zespół nr "+(i+1)+"</p><p>Nazwa zespołu: "+result2[i].name+"";
-                            block+="<button onclick='redirect(`task`,"+result2[i].id+")'>Zarządzaj zadaniami</button><button onclick='redirect(`employee`,"+result2[i].id+")'>Zarządzaj pracownikami</button></p></div>";
-                            
+                            block+="<div class='team-box'><p>Id sekcji: "+result[i].id+"</p><p>Nazwa sekcji: "+result[i].name+"</p>";
+                            block+="<button onclick='redirect(`task`,"+result[i].id+")'>Zarządzaj zadaniami</button><button onclick='redirect(`section`,"+result[i].id+")'>Zarządzaj sekcją</button></div>";
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

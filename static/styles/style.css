@@ -12,6 +12,7 @@ body {
                     border-radius: 15px;
                     padding: 40px;
                     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    
                 }
                 
                 h1 {
@@ -20,17 +21,19 @@ body {
                     margin-bottom: 40px;
                 }
                 
-                .endpoint-card {
+                #endpoint-card {
+                    
+                    height: 700px;
+                    overflow-y:auto;
                     background: #f8f9fa;
-                    border-left: 5px solid #3498db;
                     padding: 20px;
                     margin-bottom: 20px;
                     border-radius: 8px;
-                    transition: transform 0.3s;
-                    background: #34495e;
+                    background-color: rgb(212, 212, 212);
                     display: flex;
                     height: 500px;
                     align-items: center;
+                    
                 }
                 
                 
@@ -67,6 +70,7 @@ body {
                 }
                 
                 .response {
+                    
                     margin-top: 15px;
                     padding: 15px;
                     background: #e8f4f8;
@@ -79,7 +83,6 @@ body {
                 
                 .team-box {
                     flex: 1;
-                    
                     color: black;
                     padding: 20px;
                     border-radius: 10px;

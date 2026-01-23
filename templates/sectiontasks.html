@@ -18,17 +18,47 @@
             </div>
             
             <script>
-                async function changestatus(task_id) {
+                async function addTask() {
+                    tresc = document.getElementById("text").value;
+                    section_id = "{{id}}";
+
+                    try {
+                const response = await fetch('/api/tasks/section', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({description: tresc, section_id: section_id, game_id: "1"})
+                });
+                
+                if (response.ok) {
+                    document.getElementById('result').innerHTML = 
+                        `<p style="color: green;">Dodano zadanie dla pracownik nr ${id}</p>`;
+                        generateContent();
+                } else {
+                    document.getElementById('result').innerHTML = 
+                        `<p style="color: red;">Błąd: ${response.status}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<p style="color: orange;">Błąd: ${error.message}</p>`;
+            }
+            generateContent()
+                }
+                async function changestatus(task_id, done) {
                     const options = {
                         method: "GET",
                         headers: {
                             'Content-Type': 'application/json',
                         }
                     };
-                    status = document.getElementById("status"+task_id).value
+                    if(done==0)
+                        {status = document.getElementById("status"+task_id).value;
+                            
+                        }
+                        else
+                        {status = "BLOCKED"}
                     const response = await fetch(`/api/tasks/${task_id}`, options);
                     const result = await response.json();
-                    if(result[0].status !="BLOCKED")
+                    if("{{status}}" == "chief" || result[0].status !="BLOCKED")
                     {
                     try {
 
@@ -53,7 +83,7 @@
                     {
                         response_box = document.getElementById("response")
                         response_box.style.display = "block"
-                        response_box.innerHTML = `<strong>Tylko kierownik sekcji może zmienić status tego zadania!</strong>`;
+                        response_box.innerHTML = `<strong>Tylko szef studia może zmienić status tego zadania!</strong>`;
                     }
                 }
                 async function generateContent() {
@@ -71,13 +101,18 @@
                         block = ""
                         for (i = 0; i<result.length; i++)
                         {
-                            block+="<div class='team-box'><p>Id zadania: "+result[i].id+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+result[i].status+"</p>";
-                            block+="<select id ='status"+result[i].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result[i].id+")'>Zmień status</button>";
+                            block+="<div class='team-box'><p>Zadanie nr "+(i+1)+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+result[i].status+"</p>";
+                            block+="<select id ='status"+result[i].id+"'><option>TODO</option><option>IN_PROGRESS</option><option>DONE</option></select><button onclick='changestatus("+result[i].id+",0)'>Zmień status</button>";
+                            if("{{status}}"=="chief")
+                            {
+                                block+="<button onclick='changestatus("+result[i].id+",1)'>Zatwierdź zadanie</button>";
+                            }
                             block+="<div id ='response'></div></div>"
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');
-
+                        if ("{{status}}"=="chief")
+                            block+="<p>Treść zadania: <input id = 'text' type='text'><button onclick='addTask()'>Dodaj zadanie dla sekcji</button></p><div id = 'result'></div>"
                         responseDiv.style.display = 'block';
 
                         responseDiv.innerHTML = block;
