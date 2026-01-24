@@ -8,7 +8,7 @@
         </head>
         <body>
             <div class="container">
-                <h1>🎮 Game Studio API - Demo</h1>
+                <h1>🎮 Studio Gier</h1>
                 <div class="endpoint-card">
                     <div class="team-box">
                         <h3>👥 Logowanie</h3>
@@ -17,7 +17,7 @@
                                style="padding: 8px; width: 100px; margin-right: 10px;">
                         <input type="password" id="password" placeholder="password" 
                                style="padding: 8px; width: 100px; margin-right: 10px;">
-                        <button onclick="testTeamEndpoint()">zaloguj się</button>
+                        <button onclick="logIn()">zaloguj się</button>
                         <div id="response3" class="response" style="margin-top: 15px;"></div>
                     </div>
                 </div>
@@ -25,65 +25,55 @@
             </div>
             
             <script>
-                async function testEndpoint(url, method, data = null, responseId) {
-                    const options = {
-                        method: method,
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    };
-                    
-                    if (data) {
-                        options.body = JSON.stringify(data);
-                    }
-                    
+                async function saveSingleValue(key, value) {
+                try {
+                    const response = await fetch('/api/session/set', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ [key]: value })
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Błąd zapisu:', error);
+                    return null;
+                }
+                }
+                async function logIn() {
+                    const login = document.getElementById('login').value;
+                    const password = document.getElementById('password').value;
                     try {
-                        const response = await fetch(url, options);
+                        const response = await fetch(`/api/employees/employee/${login}/${password}`, {method: "GET"});
                         const result = await response.json();
-                        const responseDiv = document.getElementById(responseId);
+                        const responseDiv = document.getElementById(response3);
                         if(result[0].status=="bad"){
                         
                         responseDiv.style.display = 'block';
                         responseDiv.innerHTML = `<strong>Wpisano błędny login bądź hasło!</strong>`;
                         }
                         else{
-                            first_name = result[0].first_name
-                            last_name = result[0].last_name
+                            
                             id = result[0].id
+                            saveSingleValue("myid", id)
+                            saveSingleValue("position", result[0].position)
                             if(result[0].position=="studioHead")
-                            {
-                            location.href =`/check-user/szefstudia/${id}`;
-                            }
+                            location.href =`/chief`;
+                        
                             if(result[0].position=="teamManager")
-                            {
-                            location.href =`/check-user/kierownikzespolu/${id}`;
-                            }
+                            location.href =`/team-manager`;
+                            
                             if(result[0].position=="sectionManager")
-                            location.href =`/check-user/kierowniksekcji/${id}`;
+                            location.href =`/section-manager`;
+
                             if(result[0].position=="employee")
-                            location.href =`/check-user/pracownik/${id}`;
+                        
+                            location.href =`/employee`;
+                        
                         }
                     } catch (error) {
                         const responseDiv = document.getElementById(responseId);
                         responseDiv.style.display = 'block';
                         responseDiv.innerHTML = `<strong>Błąd:</strong> ${error.message}`;
                     }
-                }
-
-                
-                async function testTeamEndpoint() {
-                    const login = document.getElementById('login').value;
-                    const password = document.getElementById('password').value;
-                    if (!login) {
-                        alert('Podaj login!');
-                        return;
-                    }
-                    if (!password) {
-                        alert('Podaj hasło!');
-                        return;
-                    }
-                    
-                    await testEndpoint(`/api/employees/employee/${login}/${password}`, 'GET', null, 'response3');
                 }
             
             </script>

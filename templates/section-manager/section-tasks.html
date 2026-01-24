@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel pracownika</title>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+        </head>
+        <body onload="generateContent(), genNav()">
+            <div id = "nav">
+            </div>
+            <div class="container">
+                <h1>Zadania sekcji nr {{session.get('sectionid', '')}}</h1>
+
+                <div id="endpoint-card">
+                
+                </div>
+                <div id = "task"></div>
+                
+            </div>
+            
+            <script>
+                 async function genNav()
+                {
+                    nav = document.getElementById("nav")
+                    position = "{{session.get('position', '')}}"
+                    if (position == "sectionManager")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('section-task')">Wyświetl zadania sekcji</button>
+                <button class = "nav-button" onclick="chooseOption('section')">Zarządzaj sekcją</button>`
+                    else if (position == "studioHead")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('employees')">Zarządzaj pracownikami</button>
+                <button class = "nav-button" onclick="chooseOption('sections')">Zarządzaj sekcjami</button>`
+                }
+                async function addSectionTask() {
+                section_id = "{{session.get('sectionid', '')}}"
+                const modal = document.createElement('div');
+                modal.className = "background-alert";
+                
+                const form = document.createElement('div');
+                form.className = "form-alert";
+                form.innerHTML = `
+                    <h3 style="margin-top: 0;">Dodaj zadanie</h3>
+                    <div style="margin-bottom: 10px;">
+                        <label>Opis:</label><br>
+                        <input type="text" id="taskDesc" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
+                `;
+                
+                modal.appendChild(form);
+                document.body.appendChild(modal);
+                
+
+                window.closeQuickForm = function() {
+                    document.body.removeChild(modal);
+                };
+                window.submitQuickForm = async function() {
+                    const desc = document.getElementById('taskDesc').value;
+                    
+                    if (!desc) {
+                        alert('Wypełnij wszystkie pola!');
+                        return;
+                    }
+                    try {
+                        const response = await fetch('/api/tasks/section', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({description: desc, section_id: section_id, game_id: "1"})
+                            });
+                        
+                        if (response.ok) {
+                            alert('Zadanie dodane!');
+                            generateContent()
+                            closeQuickForm();
+                        } else {
+                            alert('Błąd dodawania.');
+                        }
+                    } catch (error) {
+                        alert('Błąd sieci.');
+                    }
+                };
+    
+
+                    modal.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') closeQuickForm();
+                    });
+                }
+                async function saveSingleValue(key, value) {
+                try {
+                    const response = await fetch('/api/session/set', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ [key]: value })
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Błąd zapisu:', error);
+                    return null;
+                }
+                }
+                async function chooseOption(type) {
+                    id = "{{session.get('myid', '')}}"
+                    
+                        const response1 = await fetch(`/api/employees/${id}/context`, {method: "GET"});
+                        const result1 = await response1.json();
+                        sectionId = result1.section_id
+                    
+                        saveSingleValue("sectionid", sectionId)
+
+                    if (type == 'main')
+                    {   
+                        if ("{{session.get('position', '')}}" == "sectionManager")
+                        location.href =`/section-manager`;
+                        else if ("{{session.get('position', '')}}" == "studioHead")
+                        location.href =`/chief`;
+                    }
+                    if (type == 'data')
+                    {
+                        location.href =`/your-data`;  
+                    }
+                    if (type == 'task')
+                    {
+                      location.href =`/your-tasks`;  
+                    }
+                    if (type == 'section-task')
+                    {                        
+                        location.href =`/section-tasks`;  
+                    }
+                    if (type == 'section')
+                    {                        
+                        location.href =`/section-teams`;  
+                    }
+                    if (type == 'employees')
+                    {
+                      location.href =`/all-employees`;  
+                    }
+                    if (type == 'sections')
+                    {
+                        location.href =`/sections`;  
+                    }
+                }
+                async function addTask() {
+                    tresc = document.getElementById("text").value;
+                    section_id = "{{session.get('sectionid', '')}}"
+
+                    try {
+                const response = await fetch('/api/tasks/section', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({description: tresc, section_id: section_id, game_id: "1"})
+                });
+                
+                if (response.ok) {
+                    document.getElementById('result').innerHTML = 
+                        `<p style="color: green;">Dodano zadanie dla sekcji nr ${section_id}</p>`;
+                        generateContent();
+                } else {
+                    document.getElementById('result').innerHTML = 
+                        `<p style="color: red;">Błąd: ${response.status}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = 
+                    `<p style="color: orange;">Błąd: ${error.message}</p>`;
+            }
+            generateContent()
+                }
+                async function changestatus(task_id, done) {
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };
+                    if(done==0)
+                        {status = document.getElementById("status"+task_id).value;
+                            
+                        }
+                        else
+                        {status = "BLOCKED"}
+                        if (status == "DO ZROBIENIA")
+                        status = "TODO"
+                        if (status == "W TRAKCIE")
+                        status = "IN_PROGRESS"
+                        if (status == "DO SPRAWDZENIA")
+                        status = "DONE"
+                    const response = await fetch(`/api/tasks/${task_id}`, options);
+                    const result = await response.json();
+                    if("{{session.get('position', '')}}" == "studioHead" || result[0].status !="BLOCKED")
+                    {
+                    try {
+
+                        const response = await fetch(`/api/tasks/${task_id}/status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                status: status
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        generateContent()
+                        return result;
+                    } catch (error) {
+                        throw error;
+                        }
+                    }
+                    else
+                    {
+                        response_box = document.getElementById("response")
+                        response_box.style.display = "block"
+                        response_box.innerHTML = `<strong>Tylko szef studia może zmienić status tego zadania!</strong>`;
+                    }
+                }
+                async function generateContent() {
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };
+                    try {
+                        
+                        sectionid = "{{session.get('sectionid', '')}}"
+                        const response = await fetch(`/api/tasks/section/${sectionid}`, options);
+                        const result = await response.json();
+                        block = ""
+                        for (i = 0; i<result.length; i++)
+                        {
+                            if (result[i].status == "TODO")
+                                status = "DO ZROBIENIA"
+                                if (result[i].status == "IN_PROGRESS")
+                                status = "W TRAKCIE"
+                                if (result[i].status == "DONE")
+                                status = "DO SPRAWDZENIA"
+                                if (result[i].status == "BLOCKED")
+                                status = "GOTOWE"
+                            block+="<div class='team-box'><p>Zadanie nr "+(i+1)+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+status+"</p>";
+                            block+="<select id ='status"+result[i].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button onclick='changestatus("+result[i].id+",0)'>Zmień status</button>";
+                            if("{{session.get('position', '')}}" == "studioHead")
+                            {
+                                block+="<button onclick='changestatus("+result[i].id+",1)'>Zatwierdź zadanie</button>";
+                            }
+                            block+="<div id ='response'></div></div>"
+                        }
+                        
+                        const responseDiv = document.getElementById('endpoint-card');
+                        //jeśli position == studiohead
+                        if ("{{session.get('position', '')}}" == "studioHead")
+                            task = document.getElementById("task");
+                            task.innerHTML = "<button onclick='addSectionTask()'>Dodaj zadanie sekcji</button>"
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = block;
+                    } catch (error) {
+                        const responseDiv = document.getElementById(endpoint-card);
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = `<strong>Błąd:</strong> ${error.message}`;
+                    }
+                }
+            
+                
+            </script>
+        </body>
+        </html>

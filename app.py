@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, session, jsonify, request
 from models import db
 from routes.employees import employees_bp
 from routes.sections import sections_bp
@@ -11,7 +11,7 @@ import generate_data
     
 def create_app():
     app = Flask(__name__)
-
+    app.secret_key = 'tajny-klucz'
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     
@@ -27,7 +27,32 @@ def create_app():
     app.register_blueprint(team_memberships_bp, url_prefix="/api/team_memberships")
     app.register_blueprint(progress_bp, url_prefix="/api/progress")
 
+    #obsługa sesji
+    @app.route('/api/session/set', methods=['POST'])
+    def api_set_session():
+        try:
+            data = request.json
 
+            for key, value in data.items():
+                session[key] = value
+            
+            return jsonify({
+                'status': 'success',
+                'message': 'Dane zapisane w sesji',
+                'saved_keys': list(data.keys()),
+            })
+            
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+        
+    @app.route('/api/session/clear', methods=['POST'])
+    def api_clear_session():
+        session.clear()
+        return jsonify({
+            'status': 'success',
+            'message': 'Sesja wyczyszczona'
+        })
+    #strona początkowa
     @app.route('/')
     def index():
         return render_template("index.html")
@@ -35,76 +60,63 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    @app.route('/check-user/<role>/<id>')
-    def check(role,id):
-        if role == "szefstudia":
-            return redirect(url_for('szef', myid = id))
-        elif role == "kierowniksekcji":
-            return redirect(url_for('sekcja',myid = id))
-        elif role == "kierownikzespolu":
-            return redirect(url_for('zespol',myid = id))
-        else:
-            return redirect(url_for('pracownik',myid = id))
-        
-    @app.route('/szef/<myid>')
-    def szef(myid):
-        return render_template("szefstudia.html", id = myid)
+    #main pages
+    @app.route('/chief')
+    def chief():
+        return render_template("chief/chief.html")
     
-    @app.route('/sekcja/<myid>')
-    def sekcja(myid):
-        return render_template("kierowniksekcji.html", id = myid)
+    @app.route('/section-manager')
+    def section_manager():
+        return render_template("section-manager/section-manager.html")
 
-    @app.route('/zespol/<myid>')
-    def zespol(myid):
-        return render_template("kierownikzespolu.html", id = myid)
+    @app.route('/team-manager')
+    def team_manager():
+        return render_template("team-manager/team-manager.html")
 
-    @app.route('/pracownik/<myid>')
-    def pracownik(myid):
-        return render_template("pracownik.html", id = myid)
+    @app.route('/employee')
+    def employee():
+        return render_template("employee/employee.html")
     
-    @app.route('/your-data/<myid>')
-    def your_data(myid):
-        return render_template("personaldata.html", id = myid)
+
+    #employee pages
+    @app.route('/your-data')
+    def your_data():
+        return render_template("employee/personal-data.html")
     
-    @app.route('/your-tasks/<myid>')
-    def your_tasks(myid):
-        return render_template("personaltasks.html", id = myid)
+    @app.route('/your-tasks')
+    def your_tasks():
+        return render_template("employee/personal-tasks.html")
     
-    @app.route('/manage-tasks/<myid>')
-    def manage_tasks(myid):
-        return render_template("managetasks.html", id = myid)
+    #team manager pages
+    @app.route('/team-tasks')
+    def team_tasks():
+        return render_template("team-manager/team-tasks.html")
     
-    @app.route('/manage-tasks-section/<myid>')
-    def manage_tasks_section(myid):
-        return render_template("managetaskssection.html", id = myid)
+    @app.route('/team-employees')
+    def team_employees():
+        return render_template("team-manager/team-employees.html")
     
-    @app.route('/team-tasks/<teamid>/<status>')
-    def team_tasks(teamid, status):
-        return render_template("teamtasks.html", id = teamid, status = status)
+    @app.route('/team-employees/tasks')
+    def team_employees_tasks():
+        return render_template("team-manager/team-employees-tasks.html")
+
+    #section manager pages
+    @app.route('/section-tasks')
+    def section_tasks():
+        return render_template("section-manager/section-tasks.html")
     
-    @app.route('/section-tasks/<sectionid>/<status>')
-    def section_tasks(sectionid, status):
-        return render_template("sectiontasks.html", id = sectionid, status = status)
+    @app.route('/section-teams')
+    def section_teams():
+        return render_template("section-manager/section-teams.html")
     
-    @app.route('/team/employees/<teamid>')
-    def team_employees(teamid):
-        return render_template("teamemployees.html", id = teamid)
-    
-    @app.route('/section/teams/<sectionid>')
-    def section_teams(sectionid):
-        return render_template("sectionteams.html", id = sectionid)
-    
-    @app.route('/team/employees/tasks/<teamid>')
-    def team_employees_tasks(teamid):
-        return render_template("teamemployeestasks.html", id = teamid)
-    
-    @app.route('/allemployees')
+    #chief pages
+    @app.route('/all-employees')
     def allemployees():
-        return render_template("allemployees.html")
+        return render_template("chief/all-employees.html")
     
     @app.route('/sections')
     def sections():
-        return render_template("sections.html")
+        return render_template("chief/sections.html")
     
     return app
 if __name__ == "__main__":

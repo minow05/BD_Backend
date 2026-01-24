@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel pracownika</title>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+        </head>
+        <body onload="generateContent(), genNav()">
+            <div id = "nav">
+            </div>
+            <div class="container">
+                <h1>Twoje dane</h1>
+                <div id="endpoint-card"></div>
+            </div>
+            
+            <script>
+                async function genNav()
+                {
+                    nav = document.getElementById("nav")
+                    position = "{{session.get('position', '')}}"
+                    if (position == "employee")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>`
+                    else if (position == "teamManager")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('employee-task')">Wyświetl zadania pracowników</button>
+                <button class = "nav-button" onclick="chooseOption('team-task')">Wyświetl zadania zespołu</button>
+                <button class = "nav-button" onclick="chooseOption('team')">Zarządzaj zespołem</button>`
+                else if (position == "sectionManager")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('section-task')">Wyświetl zadania sekcji</button>
+                <button class = "nav-button" onclick="chooseOption('section')">Zarządzaj sekcją</button>`
+                else if (position == "studioHead")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('employees')">Zarządzaj pracownikami</button>
+                <button class = "nav-button" onclick="chooseOption('sections')">Zarządzaj sekcjami</button>`
+                }
+
+                async function chooseOption(type) {
+                    if (type == 'main')
+                    {
+                        if ("{{session.get('position', '')}}" == "employee")
+                        location.href =`/employee`;
+                        else if ("{{session.get('position', '')}}" == "teamManager")
+                        location.href =`/team-manager`;
+                        else if ("{{session.get('position', '')}}" == "sectionManager")
+                        location.href =`/section-manager`;
+                        else if ("{{session.get('position', '')}}" == "studioHead")
+                        location.href =`/chief`;
+                    }
+
+                    if (type == 'data')
+                    {
+                        location.href =`/your-data`;  
+                    }
+                    if (type == 'task')
+                    {
+                      location.href =`/your-tasks`;  
+                    }
+                    if (type == 'employee-task')
+                    {
+                        location.href =`/team-employees/tasks`;   
+                    }
+                    if (type == 'team-task')
+                    {
+                        location.href =`/team-tasks`;  
+                    }
+                    if (type == 'team')
+                    {   
+                        location.href =`/team-employees`; 
+                    }
+                    if (type == 'section-task')
+                    {                        
+                        location.href =`/section-tasks`;  
+                    }
+                    if (type == 'section')
+                    {                        
+                        location.href =`/section-teams`;  
+                    }
+                    if (type == 'employees')
+                    {
+                      location.href =`/all-employees`;  
+                    }
+                    if (type == 'sections')
+                    {
+                        location.href =`/sections`;  
+                    }
+                }
+                async function generateContent() {
+                    try {
+                        
+                        id = "{{session.get('myid', '')}}"
+                        const response = await fetch(`/api/employees/employee/id/${id}`, {method: "GET"});
+                        const result = await response.json();
+                        
+                            block="<div class='team-box'><p>Imię i nazwiako: "+result[0].first_name+" "+result[0].last_name+"</p><p>PESEL: "+result[0].pesel+"</p><p>Nr telefonu: "+result[0].phone+"</p><p>Email: "+result[0].mail+"</p><p>Data zatrudnienia: "+result[0].hire_date+"</p></div>";
+                        
+                        const responseDiv = document.getElementById('endpoint-card');
+
+                        responseDiv.style.display = 'block';
+
+                        responseDiv.innerHTML = block;
+                    } catch (error) {
+                        const responseDiv = document.getElementById(endpoint-card);
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = `<strong>Błąd:</strong> ${error.message}`;
+                    }
+                }
+            
+                
+            </script>
+        </body>
+        </html>

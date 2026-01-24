@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel pracownika</title>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+        </head>
+        <body>
+            <div id = "nav">
+                <button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+            </div>
+            <div class="container">
+                <h1>Panel pracownika</h1>
+                
+                <div class="endpoint-card">
+                    <div class="team-box">
+                        <h3>Witaj w panelu głównym pracownika!</h3>
+                        <button class = "nav-button" onclick="chooseOption('logout')">Wyloguj się</button>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <script>
+                async function clearSession() {
+                if (!confirm('Czy na pewno chcesz się wylogować? Tej operacji nie można cofnąć.')) {
+                    return;
+                }
+                try {
+                    const response = await fetch('/api/session/clear', {
+                        method: 'POST'
+                    });
+                    const result = await response.json();
+                } catch (error) {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = `Błąd: ${error.message}`;
+                }
+            }
+                async function chooseOption(type) {
+                    if (type == 'main')
+                    {
+                        location.href =`/employee`;  
+                    }
+                    if (type == 'data')
+                    {
+                        location.href =`/your-data`;  
+                    }
+                    if (type == 'task')
+                    {
+                      location.href =`/your-tasks`;  
+                    }
+                     if (type == 'logout')
+                    {
+                        
+                        location.replace("/");  
+                    }
+                }
+            
+            </script>
+        </body>
+        </html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel pracownika</title>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+        </head>
+        <body onload="generateContent(), genNav()">
+            <div id = "nav">
+            </div>
+            <div class="container">
+                <h1>Zespoły sekcji nr {{session.get('sectionid', '')}}</h1>
+
+                <div id="endpoint-card">
+                </div>
+            
+                
+            </div>
+            
+            <script>
+                 async function genNav()
+                {
+                    nav = document.getElementById("nav")
+                    position = "{{session.get('position', '')}}"
+                    if (position == "sectionManager")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('section-task')">Wyświetl zadania sekcji</button>
+                <button class = "nav-button" onclick="chooseOption('section')">Zarządzaj sekcją</button>`
+                    else if (position == "studioHead")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('employees')">Zarządzaj pracownikami</button>
+                <button class = "nav-button" onclick="chooseOption('sections')">Zarządzaj sekcjami</button>`
+                }
+                async function saveSingleValue(key, value) {
+                try {
+                    const response = await fetch('/api/session/set', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ [key]: value })
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Błąd zapisu:', error);
+                    return null;
+                    }
+                }
+                async function chooseOption(type) {
+                    id = "{{session.get('myid', '')}}"
+                    
+                        const response1 = await fetch(`/api/employees/${id}/context`, {method: "GET"});
+                        const result1 = await response1.json();
+                        sectionId = result1.section_id
+                        saveSingleValue("sectionid", sectionId)
+
+                    if (type == 'main')
+                    {
+                        if ("{{session.get('position', '')}}" == "sectionManager")
+                        location.href =`/section-manager`;
+                        else if ("{{session.get('position', '')}}" == "studioHead")
+                        location.href =`/chief`;
+                    }
+                    if (type == 'data')
+                    {
+                        location.href =`/your-data`;  
+                    }
+                    if (type == 'task')
+                    {
+                      location.href =`/your-tasks`;  
+                    }
+                    if (type == 'section-task')
+                    {                        
+                        location.href =`/section-tasks`;  
+                    }
+                    if (type == 'section')
+                    {                        
+                        location.href =`/section-teams`;  
+                    }
+                    if (type == 'employees')
+                    {
+                      location.href =`/all-employees`;  
+                    }
+                    if (type == 'sections')
+                    {
+                        location.href =`/sections`;  
+                    }
+                }
+                async function redirect(type, teamId) {
+                    saveSingleValue("teamid", teamId)
+                    if(type=="employee")
+                        location.href =`/team-employees`;
+                    if(type=="task")
+                        location.href = `/team-tasks`;
+                }
+                async function generateContent() {
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };
+                    try {
+                        sectionid = "{{session.get('sectionid', '')}}"
+                          
+                        const response2 = await fetch(`/api/sections/${sectionid}/teams`, options);
+                        const result2 = await response2.json();
+                        block = ""
+                        for (i = 0; i<result2.length; i++)
+                        {
+                            block+="<div class='team-box'><p>Zespół nr "+(i+1)+"</p><p>Nazwa zespołu: "+result2[i].name+"";
+                            block+="<button onclick='redirect(`task`,"+result2[i].id+")'>Zarządzaj zadaniami</button><button onclick='redirect(`employee`,"+result2[i].id+")'>Zarządzaj pracownikami</button></p></div>";
+                            
+                        }
+                        
+                        const responseDiv = document.getElementById('endpoint-card');
+
+                        responseDiv.style.display = 'block';
+
+                        responseDiv.innerHTML = block;
+                    } catch (error) {
+                        const responseDiv = document.getElementById(endpoint-card);
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = `<strong>Błąd:</strong> ${error.message}`;
+                    }
+                }
+            
+                
+            </script>
+        </body>
+        </html>

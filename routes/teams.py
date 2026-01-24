@@ -59,6 +59,20 @@ def get_teams_of_section(section_id):
         for t in teams
     ])
 
+@teams_bp.get("/info/<int:team_id>")
+def get_team_data(team_id):
+    teams = Team.query.filter_by(id=team_id).all()
+
+    return jsonify([
+        {
+            "id": t.id,
+            "name": t.name,
+            "section_id": t.section_id,
+            "manager_id": t.manager_id
+        }
+        for t in teams
+    ])
+
 @teams_bp.get("/<int:team_id>/progress")
 def get_team_progress(team_id):
     total_tasks = Task.query.filter_by(assigned_team_id=team_id).count()

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel kierownika sekcji</title>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+        </head>
+        <body>
+            <div id = "nav">
+                <button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('section-task')">Wyświetl zadania sekcji</button>
+                <button class = "nav-button" onclick="chooseOption('section')">Zarządzaj sekcją</button>
+            </div>
+            <div class="container">
+                <h1>Panel kierownika sekcji</h1>
+
+                <div class="endpoint-card">
+                    <div class="team-box">
+                        <h3>Witaj w panelu głównym kierownika sekcji!</h3>
+                        <button class = "nav-button" onclick="chooseOption('logout')">Wyloguj się</button>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <script>
+                async function saveSingleValue(key, value) {
+                try {
+                    const response = await fetch('/api/session/set', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ [key]: value })
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error('Błąd zapisu:', error);
+                    return null;
+                }
+                }
+                async function clearSession() {
+                if (!confirm('Czy na pewno chcesz się wylogować? Tej operacji nie można cofnąć.')) {
+                    return;
+                }
+                try {
+                    const response = await fetch('/api/session/clear', {
+                        method: 'POST'
+                    });
+                    const result = await response.json();
+                } catch (error) {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = `Błąd: ${error.message}`;
+                }
+            }
+                async function chooseOption(type) {
+                    id = "{{session.get('myid', '')}}"
+                    
+                        const response1 = await fetch(`/api/employees/${id}/context`, {method: "GET"});
+                        const result1 = await response1.json();
+                        sectionId = result1.section_id
+                        saveSingleValue("sectionid", sectionId)
+
+                    if (type == 'main')
+                    {
+                        location.href =`/section-manager`;  
+                    }
+                    if (type == 'data')
+                    {
+                        location.href =`/your-data`;  
+                    }
+                    if (type == 'task')
+                    {
+                      location.href =`/your-tasks`;  
+                    }
+                    if (type == 'section-task')
+                    {                        
+                        location.href =`/section-tasks`;  
+                    }
+                    if (type == 'section')
+                    {                        
+                        location.href =`/section-teams`;  
+                    }
+                    if (type == 'logout')
+                    {
+                        clearSession();
+                        location.replace("/");  
+                    }
+                }
+            
+            </script>
+        </body>
+        </html>

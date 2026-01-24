@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel pracownika</title>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+        </head>
+        <body onload="generateContent(), genNav()">
+            <div id = "nav">
+                <button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('employee-task')">Wyświetl zadania pracowników</button>
+                <button class = "nav-button" onclick="chooseOption('team-task')">Wyświetl zadania zespołu</button>
+                <button class = "nav-button" onclick="chooseOption('team')">Zarządzaj zespołem</button>
+            </div>
+            <div class="container">
+                <h1>Zadania pracowników zespołu nr {{session.get('teamid', '')}}</h1>
+
+                <div id="endpoint-card">
+
+                </div>
+                <div id = "task"></div>
+            </div>
+            
+            <script>
+                async function chooseOption(type) {
+                    if (type == 'main')
+                    {
+                        location.href =`/team-manager`;  
+                    }
+                    if (type == 'data')
+                    {
+                        location.href =`/your-data`;  
+                    }
+                    if (type == 'task')
+                    {
+                        location.href =`/your-tasks`;  
+                    }
+
+                    if (type == 'employee-task')
+                    {
+                        location.href =`/team-employees/tasks`;   
+                    }
+                    if (type == 'team-task')
+                    {
+                        location.href =`/team-tasks`;  
+                    }
+                    if (type == 'team')
+                    {   
+                        location.href =`/team-employees`; 
+                    }
+                }
+                async function addTask() {
+                const team_id = "{{session.get('teamid', '')}}"
+                response = await fetch(`/api/employees/team/${team_id}`, {method: "GET"});
+                result = await response.json();
+                block1 = "<select style='width: 100%; padding: 5px' size = '5' name = 'tasks' id = 'employee'>"
+                
+                for (i = 0; i<result.length; i++)
+                {
+                   block1+="<option>"+result[i].first_name+" "+result[i].last_name+"</option>" 
+                }
+                block1 += "</select>"
+                response = await fetch(`/api/tasks/team/${team_id}`, {method: "GET"});
+                result = await response.json();
+                block2 = "<select style='width: 100%; padding: 5px' size = '5' name = 'tasks' id = 'teamTask'>"
+                for (i = 0; i<result.length; i++)
+                {
+                    block2+="<option>"+result[i].description+"</option>"
+                }
+                block2 += "</select>"
+                const modal = document.createElement('div');
+                modal.className = "background-alert";
+                
+                const form = document.createElement('div');
+                form.className = "form-alert";
+                form.innerHTML = `
+                    <h3 style="margin-top: 0;">Dodaj zadanie</h3>
+                    <div style="margin-bottom: 10px;">
+                        <label>Opis:</label><br>
+                        <input type="text" id="taskDesc" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Pracownik:</label><br>
+                        ${block1}
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Zadanie zespołu:</label><br>
+                        ${block2}
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
+                `;
+                
+                modal.appendChild(form);
+                document.body.appendChild(modal);
+                
+
+                window.closeQuickForm = function() {
+                    document.body.removeChild(modal);
+                };
+                window.submitQuickForm = async function() {
+                    const desc = document.getElementById('taskDesc').value;
+                    const teamTask = document.getElementById('teamTask').value;
+                    const employee = document.getElementById('employee').value.split(" ");
+                    const team_id = "{{session.get('teamid', '')}}"
+                    response = await fetch(`/api/tasks/team/${team_id}`, {method: "GET"});
+                    result = await response.json();
+                    for (i = 0; i<result.length; i++)
+                    {
+                        if(result[i].description == teamTask)
+                        {
+                        teamTaskId = result[i].id
+                        }
+                    }
+                    
+                    response = await fetch(`/api/employees/team/${team_id}`, {method: "GET"});
+                    result = await response.json();
+                    for (i = 0; i<result.length; i++)
+                    {
+                        if(result[i].first_name == employee[0] && result[i].last_name == employee[1])
+                        {
+                        id = result[i].id
+                        }
+                    }
+                    
+                    if (!desc || !teamTask || !employee) {
+                        alert('Wypełnij wszystkie pola!');
+                        return;
+                    }
+                    try {
+                         const response = await fetch('/api/tasks/employee-task', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({description: desc, team_member_id: id, team_task_id: teamTaskId})
+                });
+                        
+                        if (response.ok) {
+                            alert('Zadanie dodane!');
+                            generateContent()
+                            closeQuickForm();
+                        } else {
+                            alert('Błąd dodawania.');
+                        }
+                    } catch (error) {
+                        alert('Błąd sieci.');
+                    }
+                };
+    
+
+                    modal.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') closeQuickForm();
+                    });
+                }
+
+                async function changestatus(task_id,done) {
+                    
+                    try {
+                        if(done==0)
+                        {status = document.getElementById("status"+task_id).value;}
+                        else
+                        {status = "BLOCKED"}
+                        if (status == "DO ZROBIENIA")
+                        status = "TODO"
+                        if (status == "W TRAKCIE")
+                        status = "IN_PROGRESS"
+                        if (status == "DO SPRAWDZENIA")
+                        status = "DONE"
+                        const response = await fetch(`/api/tasks/${task_id}/status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                status: status
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        generateContent()
+                        return result;
+                    } catch (error) {
+                        throw error;
+                        }
+                }
+                async function generateContent() {
+                    try {
+                        team_id = "{{session.get('teamid', '')}}"
+                        
+                        response = await fetch(`/api/employees/team/${team_id}`, {method: "GET"});
+                        result = await response.json();
+                        block = ""
+                        
+                        for (i = 0; i<result.length; i++)
+                        {
+
+                            id = result[i].id;
+                            response2 = await fetch(`/api/tasks/employee/${id}`, {method: "GET"});
+                            result2 = await response2.json();
+                         
+                            for (j = 0; j<result2.length; j++)
+                            {
+                                if (result2[j].status == "TODO")
+                                status = "DO ZROBIENIA"
+                                if (result2[j].status == "IN_PROGRESS")
+                                status = "W TRAKCIE"
+                                if (result2[j].status == "DONE")
+                                status = "DO SPRAWDZENIA"
+                                if (result2[j].status == "BLOCKED")
+                                status = "GOTOWE"
+                            block+="<div class='team-box'><p>Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>Zadanie: "+result2[j].description+" status: "+status;
+                            block+="<p><select id ='status"+result2[j].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button onclick='changestatus("+result2[j].id+",0)'>Zmień status</button><button onclick='changestatus("+result2[j].id+",1)'>Zatwierdź zadanie</button></p></div>";
+                            block+="<div id ='response'></div></div>"
+                            }
+                            result2 = []
+                        }
+                        
+                        const responseDiv = document.getElementById('endpoint-card');
+
+                        responseDiv.style.display = 'block';
+
+                        responseDiv.innerHTML = block;
+                        task = document.getElementById("task");
+                        task.innerHTML = "<button onclick='addTask()'>Dodaj zadanie pracownika</button>"
+                    } catch (error) {
+                        const responseDiv = document.getElementById(endpoint-card);
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = `<strong>Błąd:</strong> ${error.message}`;
+                    }
+                }
+            
+                
+            </script>
+        </body>
+        </html>

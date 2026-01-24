@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Panel pracownika</title>
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+        </head>
+        <body onload="generateContent(), genNav()">
+            <div id = "nav">
+
+            </div>
+            <div class="container">
+                <h1>Zadania zespołu nr {{session.get('teamid', '')}}</h1>
+
+                <div id="endpoint-card">
+
+                </div>
+                <div id = "task"></div>
+                
+            </div>
+            
+            <script>
+                 async function genNav()
+                {
+                    nav = document.getElementById("nav")
+                    position = "{{session.get('position', '')}}"
+                    if (position == "sectionManager")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('section-task')">Wyświetl zadania sekcji</button>
+                <button class = "nav-button" onclick="chooseOption('section')">Zarządzaj sekcją</button>`
+                    else if (position == "teamManager")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('employee-task')">Wyświetl zadania pracowników</button>
+                <button class = "nav-button" onclick="chooseOption('team-task')">Wyświetl zadania zespołu</button>
+                <button class = "nav-button" onclick="chooseOption('team')">Zarządzaj zespołem</button>`
+                else if (position == "studioHead")
+                    nav.innerHTML = `<button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
+                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
+                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
+                <button class = "nav-button" onclick="chooseOption('employees')">Zarządzaj pracownikami</button>
+                <button class = "nav-button" onclick="chooseOption('sections')">Zarządzaj sekcjami</button>`
+                }
+            async function chooseOption(type) {
+                    if (type == 'main')
+                    {
+                        if ("{{session.get('position', '')}}" == "teamManager")
+                        location.href =`/team-manager`;  
+                        else if ("{{session.get('position', '')}}" == "sectionManager")
+                        location.href =`/section-manager`;
+                        else if ("{{session.get('position', '')}}" == "studioHead")
+                        location.href =`/chief`;  
+                    }
+                    if (type == 'data')
+                    {
+                        location.href =`/your-data`;  
+                    }
+                    if (type == 'task')
+                    {
+                        location.href =`/your-tasks`;  
+                    }
+                    if (type == 'employee-task')
+                    {
+                        location.href =`/team-employees/tasks`;   
+                    }
+                    if (type == 'team-task')
+                    {
+                        location.href =`/team-tasks`;  
+                    }
+                    if (type == 'team')
+                    {   
+                        location.href =`/team-employees`; 
+                    }
+                    if (type == 'section-task')
+                    {                        
+                        location.href =`/section-tasks`;  
+                    }
+                    if (type == 'section')
+                    {                        
+                        location.href =`/section-teams`;  
+                    }
+                    if (type == 'employees')
+                    {
+                      location.href =`/all-employees`;  
+                    }
+                    if (type == 'sections')
+                    {
+                        location.href =`/sections`;  
+                    }
+                }
+            async function addTeamTask() {
+                team_id = "{{session.get('teamid', '')}}"
+                response = await fetch(`/api/teams/info/${team_id}`, {method: "GET"});
+                result = await response.json();
+                section_id = result[0].section_id
+                response = await fetch(`/api/tasks/section/${section_id}`, {method: "GET"});
+                result = await response.json();
+                block = "<select style='width: 100%; padding: 5px' size = '5' name = 'tasks' id = 'sectionTask'>"
+                for (i = 0; i<result.length; i++)
+                {
+                    block+="<option>"+result[i].description+"</option>"
+                }
+                block += "</select>"
+                const modal = document.createElement('div');
+                modal.className = "background-alert";
+                
+                const form = document.createElement('div');
+                form.className = "form-alert";
+                form.innerHTML = `
+                    <h3 style="margin-top: 0;">Dodaj zadanie</h3>
+                    <div style="margin-bottom: 10px;">
+                        <label>Opis:</label><br>
+                        <input type="text" id="taskDesc" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Zadanie sekcji:</label><br>
+                        ${block}
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
+                `;
+                
+                modal.appendChild(form);
+                document.body.appendChild(modal);
+                
+
+                window.closeQuickForm = function() {
+                    document.body.removeChild(modal);
+                };
+                window.submitQuickForm = async function() {
+                    const desc = document.getElementById('taskDesc').value;
+                    const sectionTask = document.getElementById('sectionTask').value;
+                    const team_id = "{{session.get('teamid', '')}}"
+                    response = await fetch(`/api/teams/info/${team_id}`, {method: "GET"});
+                    result = await response.json();
+                    section_id = result[0].section_id
+                    response = await fetch(`/api/tasks/section/${section_id}`, {method: "GET"});
+                    result = await response.json();
+                    for (i = 0; i<result.length; i++)
+                    {
+                        if(result[i].description == sectionTask)
+                        {
+                        sectionTaskId = result[i].id
+                        }
+                    }
+                    if (!desc || !sectionTask) {
+                        alert('Wypełnij wszystkie pola!');
+                        return;
+                    }
+                    try {
+                        const response = await fetch('/api/tasks/team', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({description: desc, team_id: team_id, section_task_id: sectionTaskId})
+                            });
+                        
+                        if (response.ok) {
+                            alert('Zadanie dodane!');
+                            generateContent()
+                            closeQuickForm();
+                        } else {
+                            alert('Błąd dodawania.');
+                        }
+                    } catch (error) {
+                        alert('Błąd sieci.');
+                    }
+                };
+    
+
+                    modal.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') closeQuickForm();
+                    });
+                }
+                async function changestatus(task_id,done) {
+                    if(done==0)
+                        {status = document.getElementById("status"+task_id).value;}
+                        else
+                        {status = "BLOCKED"}
+                        if (status == "DO ZROBIENIA")
+                        status = "TODO"
+                        if (status == "W TRAKCIE")
+                        status = "IN_PROGRESS"
+                        if (status == "DO SPRAWDZENIA")
+                        status = "DONE"
+                    const response = await fetch(`/api/tasks/${task_id}`, {method: "GET"});
+                    const result = await response.json();
+
+                    if("{{session.get('position', '')}}" == "sectionManager" || "{{session.get('position', '')}}" == "studioHead" || result[0].status != "BLOCKED")
+                    {
+                    try {
+
+                        const response = await fetch(`/api/tasks/${task_id}/status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                status: status
+                            })
+                        });
+                        
+                        const result = await response.json();
+                        generateContent()
+                        return result;
+                    } catch (error) {
+                        throw error;
+                        }
+                    }
+                    else
+                    {
+                        response_box = document.getElementById("response"+task_id)
+                        response_box.style.display = "block"
+                        response_box.innerHTML = `<strong>Tylko kierownik sekcji może zmienić status tego zadania!</strong>`;
+                    }
+                }
+                async function generateContent() {
+                    try {
+                        
+                        teamid = "{{session.get('teamid', '')}}"
+                        const response = await fetch(`/api/tasks/team/${teamid}`, {method: "GET"});
+                        const result = await response.json();
+                        block = ""
+                        
+                        for (i = 0; i<result.length; i++)
+                        {
+                            if (result[i].status == "TODO")
+                                status = "DO ZROBIENIA"
+                                if (result[i].status == "IN_PROGRESS")
+                                status = "W TRAKCIE"
+                                if (result[i].status == "DONE")
+                                status = "DO SPRAWDZENIA"
+                                if (result[i].status == "BLOCKED")
+                                status = "GOTOWE"
+                            block+="<div class='team-box'><p>Zadanie nr "+(i+1)+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+status+"</p>";
+                            block+="<select id ='status"+result[i].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button onclick='changestatus("+result[i].id+",0)'>Zmień status</button>";
+                            if("{{session.get('position', '')}}" == "sectionManager" || "{{session.get('position', '')}}" == "studioHead")
+                            {
+                                block+="<button onclick='changestatus("+result[i].id+",1)'>Zatwierdź zadanie</button>";
+                            }
+                            block+="<div id ='response"+result[i].id+"'></div></div>"
+                        }                       
+                        const responseDiv = document.getElementById('endpoint-card');                 
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = block;
+                        
+                        if ("{{session.get('position', '')}}" == "sectionManager" || "{{session.get('position', '')}}" == "studioHead")
+                            {
+                            task = document.getElementById("task");
+                            task.innerHTML = "<button onclick='addTeamTask()'>Dodaj zadanie zespołu</button>"
+                            }
+                    } catch (error) {
+                        const responseDiv = document.getElementById(endpoint-card);
+                        responseDiv.style.display = 'block';
+                        responseDiv.innerHTML = `<strong>Błąd:</strong> ${error.message}`;
+                    }
+                }
+            
+                
+            </script>
+        </body>
+        </html>

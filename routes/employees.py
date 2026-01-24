@@ -19,12 +19,42 @@ def create_employee():
 
     return jsonify({"id": employee.id}), 201
 
+@employees_bp.get("/team-member")
+def get_teammember():
+    employees = Employee.query.all()
+    
+    # Pobierz wszystkie ID z każdej tabeli specjalizacji
+    studio_head_ids = {sh.id for sh in StudioHead.query.all()}
+    section_manager_ids = {sm.id for sm in SectionManager.query.all()}
+    team_manager_ids = {tm.id for tm in TeamManager.query.all()}
+    
+    result = []
+    for employee in employees:
+        position = "pracownik"
+        employee_id = employee.id
+        
+        if employee_id in studio_head_ids:
+            continue
+        elif employee_id in section_manager_ids:
+            continue
+        elif employee_id in team_manager_ids:
+            continue
+        
+        result.append({
+            "id": employee.id,
+            "first_name": employee.first_name,
+            "last_name": employee.last_name,
+            "pesel": employee.pesel,
+            "phone": employee.phone,
+            "hire_date": employee.hire_date,
+            "fire_date": employee.fire_date,
+            "position": position
+        })
 
 @employees_bp.get("/")
 def get_employees():
     employees = Employee.query.all()
     
-    # Pobierz wszystkie ID z każdej tabeli specjalizacji
     studio_head_ids = {sh.id for sh in StudioHead.query.all()}
     section_manager_ids = {sm.id for sm in SectionManager.query.all()}
     team_manager_ids = {tm.id for tm in TeamManager.query.all()}
@@ -78,6 +108,7 @@ def get_employee_id(id):
     return jsonify([
         {
             "id": employee.id,
+            "position": position,
             "first_name": employee.first_name,
             "last_name": employee.last_name,
             "pesel": employee.pesel,
