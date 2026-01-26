@@ -14,7 +14,7 @@
 
                 <div id="endpoint-card">
                 </div>
-            
+                <div id = "teams"><button onclick='addTeam()'>Dodaj zespół</button></div>
                 
             </div>
             <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
@@ -40,6 +40,83 @@
                         location.href =`/team-employees`;
                     if(type=="task")
                         location.href = `/team-tasks`;
+                }
+                async function addTeam() {
+                section_id = "{{session.get('sectionid', '')}}"
+                response = await fetch(`/api/employees/`, {method: "GET"});
+                result = await response.json();
+                block = "<select style='width: 100%; padding: 5px' size = '5' name = 'tasks' id = 'teamManager'>"
+                for (i = 0; i<result.length; i++)
+                {
+                    block+="<option>"+result[i].first_name+" "+result[i].last_name+"</option>"
+                }
+                block += "</select>"
+                const modal = document.createElement('div');
+                modal.className = "background-alert";
+                
+                const form = document.createElement('div');
+                form.className = "form-alert";
+                form.innerHTML = `
+                    <h3 style="margin-top: 0;">Dodaj zespół</h3>
+                    <div style="margin-bottom: 10px;">
+                        <label>Nazwa zespołu:</label><br>
+                        <input type="text" id="teamName" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Manager zespołu:</label><br>
+                        ${block}
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
+                `;
+                
+                modal.appendChild(form);
+                document.body.appendChild(modal);
+                
+
+                window.closeQuickForm = function() {
+                    document.body.removeChild(modal);
+                };
+                window.submitQuickForm = async function() {
+                    const name = document.getElementById('teamName').value;
+                    const manager = document.getElementById('teamManager').value.split(" ");
+                    if (!name || !manager) {
+                        alert('Wypełnij wszystkie pola!');
+                        return;
+                    }
+                    response = await fetch(`/api/employees/`, {method: "GET"});
+                    result = await response.json();
+                    for (i = 0; i<result.length; i++)
+                    {
+                        if(result[i].first_name == manager[0] && result[i].last_name == manager[1])
+                        {
+                        manager_id = result[i].id
+                        }
+                    }
+                    
+                    try {
+                        const response = await fetch('/api/teams/', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({name: name, section_id: section_id, manager_id: manager_id})
+                            });
+                        
+                        if (response.ok) {
+                            alert('Dodano zespół!');
+                            generateContent()
+                            closeQuickForm();
+                        } else {
+                            alert('Błąd dodawania.');
+                        }
+                    } catch (error) {
+                        alert('Błąd sieci.');
+                    }
+                };
+                    modal.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') closeQuickForm();
+                    });
                 }
                 async function generateContent() {
                     const options = {

@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from models import db, Employee, TeamMember, TeamMembership, Team, StudioHead, SectionManager, TeamManager, Section
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import date
+
 employees_bp = Blueprint("employees", __name__)
 
 @employees_bp.post("/")
@@ -10,8 +12,11 @@ def create_employee():
     employee = TeamMember(
         first_name=data["first_name"],
         last_name=data["last_name"],
+        pesel=data["pesel"],
+        phone=data ["phone"],
         login=data["login"],
-        password_hash=data["password"]
+        hire_date = str(date.today()),
+        password_hash=generate_password_hash(data["password"])
     )
 
     db.session.add(employee)

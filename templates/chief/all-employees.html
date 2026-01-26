@@ -20,7 +20,7 @@
                 <div id="endpoint-card">
 
                 </div>
-            
+                <div id = "employee"><button onclick='addEmployee()'>Dodaj pracownika</button></div>
                 
             </div>
             <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
@@ -29,6 +29,84 @@
                 {
                     position = "{{session.get('position', '')}}"
                     chooseOpt(type,position)
+                }
+                async function addEmployee() {
+                const modal = document.createElement('div');
+                modal.className = "background-alert";
+                
+                const form = document.createElement('div');
+                form.className = "form-alert";
+                form.innerHTML = `
+                    <h3 style="margin-top: 0;">Dodaj pracownika</h3>
+                    <div style="margin-bottom: 10px;">
+                        <label>Imię:</label><br>
+                        <input type="text" id="first-name" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Nazwisko:</label><br>
+                        <input type="text" id="last-name" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Pesel:</label><br>
+                        <input type="text" id="pesel" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Numer telefonu:</label><br>
+                        <input type="text" id="phone" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Login:</label><br>
+                        <input type="text" id="login" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Hasło:</label><br>
+                        <input type="text" id="pass" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
+                `;
+                
+                modal.appendChild(form);
+                document.body.appendChild(modal);
+                
+
+                window.closeQuickForm = function() {
+                    document.body.removeChild(modal);
+                };
+                window.submitQuickForm = async function() {
+                    const first_name = document.getElementById('first-name').value;
+                    const last_name = document.getElementById('last-name').value;
+                    const pesel = document.getElementById('pesel').value;
+                    const phone = document.getElementById('phone').value;
+                    const login = document.getElementById('login').value;
+                    const password = document.getElementById('pass').value;
+                    if (!first_name || !last_name || !pesel || !phone || !login || !password) {
+                        alert('Wypełnij wszystkie pola!');
+                        return;
+                    }
+                    try {
+                        const response = await fetch('/api/employees/', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({first_name: first_name, last_name: last_name, pesel: pesel, phone: phone, login: login, password: password})
+                            });
+                        
+                        if (response.ok) {
+                            alert('Dodano pracownika!');
+                            generateContent()
+                            closeQuickForm();
+                        } else {
+                            alert('Błąd dodawania.');
+                        }
+                    } catch (error) {
+                        alert('Błąd sieci.');
+                    }
+                };
+                    modal.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') closeQuickForm();
+                    });
                 }
                 async function fireEmployee(employeeId) {
                    if (!confirm(`Zwolnić pracownika?`)) return;

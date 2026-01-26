@@ -20,7 +20,7 @@
                 <div id="endpoint-card">
 
                 </div>
-            
+                <div id = "section"><button onclick='addSection()'>Dodaj sekcję</button></div>
                 
             </div>
             <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
@@ -37,7 +37,82 @@
                     if(type=="task")
                         location.href = `/section-tasks`;
                 }
+                async function addSection() {
+                response = await fetch(`/api/employees/`, {method: "GET"});
+                result = await response.json();
+                block = "<select style='width: 100%; padding: 5px' size = '5' name = 'tasks' id = 'sectionManager'>"
+                for (i = 0; i<result.length; i++)
+                {
+                    block+="<option>"+result[i].first_name+" "+result[i].last_name+"</option>"
+                }
+                block += "</select>"
+                const modal = document.createElement('div');
+                modal.className = "background-alert";
+                
+                const form = document.createElement('div');
+                form.className = "form-alert";
+                form.innerHTML = `
+                    <h3 style="margin-top: 0;">Dodaj sekcję</h3>
+                    <div style="margin-bottom: 10px;">
+                        <label>Nazwa zespołu:</label><br>
+                        <input type="text" id="sectionName" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label>Manager sekcji:</label><br>
+                        ${block}
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
+                `;
+                
+                modal.appendChild(form);
+                document.body.appendChild(modal);
+                
 
+                window.closeQuickForm = function() {
+                    document.body.removeChild(modal);
+                };
+                window.submitQuickForm = async function() {
+                    const name = document.getElementById('sectionName').value;
+                    const manager = document.getElementById('sectionManager').value.split(" ");
+                    if (!name || !manager) {
+                        alert('Wypełnij wszystkie pola!');
+                        return;
+                    }
+                    response = await fetch(`/api/employees/`, {method: "GET"});
+                    result = await response.json();
+                    for (i = 0; i<result.length; i++)
+                    {
+                        if(result[i].first_name == manager[0] && result[i].last_name == manager[1])
+                        {
+                        manager_id = result[i].id
+                        }
+                    }
+                    
+                    try {
+                        const response = await fetch('/api/sections/', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({name: name, manager_id: manager_id})
+                            });
+                        
+                        if (response.ok) {
+                            alert('Dodano sekcję!');
+                            generateContent()
+                            closeQuickForm();
+                        } else {
+                            alert('Błąd dodawania.');
+                        }
+                    } catch (error) {
+                        alert('Błąd sieci.');
+                    }
+                };
+                    modal.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') closeQuickForm();
+                    });
+                }
                 async function generateContent() {
                     const options = {
                         method: "GET",

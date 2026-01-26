@@ -83,6 +83,10 @@
                     const desc = document.getElementById('taskDesc').value;
                     const teamTask = document.getElementById('teamTask').value;
                     const employee = document.getElementById('employee').value.split(" ");
+                    if (!desc || !teamTask || !employee) {
+                        alert('Wypełnij wszystkie pola!');
+                        return;
+                    }
                     const team_id = "{{session.get('teamid', '')}}"
                     response = await fetch(`/api/tasks/team/${team_id}`, {method: "GET"});
                     result = await response.json();
@@ -104,10 +108,7 @@
                         }
                     }
                     
-                    if (!desc || !teamTask || !employee) {
-                        alert('Wypełnij wszystkie pola!');
-                        return;
-                    }
+                    
                     try {
                          const response = await fetch('/api/tasks/employee-task', {
                     method: 'POST',
