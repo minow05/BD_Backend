@@ -6,6 +6,7 @@
             <title>Game Studio - API Demo</title>
             <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
         </head>
+        <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
         <body>
             <div class="container">
                 <h1>🎮 Studio Gier</h1>
@@ -25,33 +26,22 @@
             </div>
             
             <script>
-                async function saveSingleValue(key, value) {
-                try {
-                    const response = await fetch('/api/session/set', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ [key]: value })
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Błąd zapisu:', error);
-                    return null;
-                }
-                }
+                
                 async function logIn() {
+                    
                     const login = document.getElementById('login').value;
                     const password = document.getElementById('password').value;
                     try {
                         const response = await fetch(`/api/employees/employee/${login}/${password}`, {method: "GET"});
                         const result = await response.json();
                         const responseDiv = document.getElementById(response3);
+                        
                         if(result[0].status=="bad"){
                         
                         responseDiv.style.display = 'block';
                         responseDiv.innerHTML = `<strong>Wpisano błędny login bądź hasło!</strong>`;
                         }
                         else{
-                            
                             id = result[0].id
                             saveSingleValue("myid", id)
                             saveSingleValue("position", result[0].position)

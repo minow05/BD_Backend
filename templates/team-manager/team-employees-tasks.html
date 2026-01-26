@@ -6,14 +6,8 @@
             <title>Panel pracownika</title>
             <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
         </head>
-        <body onload="generateContent(), genNav()">
+        <body onload="generateContent(), generateNav()">
             <div id = "nav">
-                <button class = "nav-button" onclick="chooseOption('main')">Główna strona</button>
-                <button class = "nav-button" onclick="chooseOption('data')">Wyświetl dane użytkownika</button>
-                <button class = "nav-button" onclick="chooseOption('task')">Wyświetl swoje zadania</button>
-                <button class = "nav-button" onclick="chooseOption('employee-task')">Wyświetl zadania pracowników</button>
-                <button class = "nav-button" onclick="chooseOption('team-task')">Wyświetl zadania zespołu</button>
-                <button class = "nav-button" onclick="chooseOption('team')">Zarządzaj zespołem</button>
             </div>
             <div class="container">
                 <h1>Zadania pracowników zespołu nr {{session.get('teamid', '')}}</h1>
@@ -23,34 +17,16 @@
                 </div>
                 <div id = "task"></div>
             </div>
-            
+            <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
             <script>
-                async function chooseOption(type) {
-                    if (type == 'main')
-                    {
-                        location.href =`/team-manager`;  
-                    }
-                    if (type == 'data')
-                    {
-                        location.href =`/your-data`;  
-                    }
-                    if (type == 'task')
-                    {
-                        location.href =`/your-tasks`;  
-                    }
-
-                    if (type == 'employee-task')
-                    {
-                        location.href =`/team-employees/tasks`;   
-                    }
-                    if (type == 'team-task')
-                    {
-                        location.href =`/team-tasks`;  
-                    }
-                    if (type == 'team')
-                    {   
-                        location.href =`/team-employees`; 
-                    }
+                async function chooseOption(type)
+                {
+                    position = "{{session.get('position', '')}}"
+                    chooseOpt(type,position)
+                }
+                async function generateNav() {
+                    position = "{{session.get('position', '')}}"
+                    genNav(position);
                 }
                 async function addTask() {
                 const team_id = "{{session.get('teamid', '')}}"

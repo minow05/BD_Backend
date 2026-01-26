@@ -25,48 +25,12 @@
                 </div>
                 
             </div>
-            
+            <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
             <script>
-                async function clearSession() {
-                if (!confirm('Czy na pewno chcesz się wylogować? Tej operacji nie można cofnąć.')) {
-                    return;
-                }
-                try {
-                    const response = await fetch('/api/session/clear', {
-                        method: 'POST'
-                    });
-                    const result = await response.json();
-                } catch (error) {
-                    statusDiv.className = 'status error';
-                    statusDiv.textContent = `Błąd: ${error.message}`;
-                }
-            }
-                async function chooseOption(type) {
-                    if (type == 'main')
-                    {
-                        location.href =`/chief`;  
-                    }
-                    if (type == 'data')
-                    {
-                        location.href =`/your-data`;  
-                    }
-                    if (type == 'task')
-                    {
-                        location.href =`/your-tasks`;  
-                    }
-                    if (type == 'employees')
-                    {
-                      location.href =`/all-employees`;  
-                    }
-                    if (type == 'sections')
-                    {
-                        location.href =`/sections`;  
-                    }
-                    if (type == 'logout')
-                    {
-                        clearSession();
-                        location.replace("/");  
-                    }
+                async function chooseOption(type)
+                {
+                    position = "{{session.get('position', '')}}"
+                    chooseOpt(type,position)
                 }
             
             </script>

@@ -23,44 +23,12 @@
             
                 
             </div>
-            
+            <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
             <script>
-                async function chooseOption(type) {
-                    if (type == 'main')
-                    {
-                        location.href =`/chief`;  
-                    }
-                    if (type == 'data')
-                    {
-                        location.href =`/your-data`;  
-                    }
-                    if (type == 'task')
-                    {
-                        location.href =`/your-tasks`;  
-                    }
-                    if (type == 'employees')
-                    {
-                      location.href =`/all-employees`;  
-                    }
-                    if (type == 'sections')
-                    {
-                        location.href =`/sections`;  
-                    }
-
-                }
-
-                async function saveSingleValue(key, value) {
-                try {
-                    const response = await fetch('/api/session/set', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ [key]: value })
-                    });
-                    return await response.json();
-                } catch (error) {
-                    console.error('Błąd zapisu:', error);
-                    return null;
-                    }
+                 async function chooseOption(type)
+                {
+                    position = "{{session.get('position', '')}}"
+                    chooseOpt(type,position)
                 }
                 async function redirect(type, id) {
                     saveSingleValue("sectionid", id)
