@@ -12,7 +12,7 @@
             <div class="container">
                 <h1>Zarządzanie zespołem nr {{session.get('teamid', '')}}</h1>
                 <div id="endpoint-card"></div>
-                <div id = employee></div><button onclick='addEmployee()'>Dodaj pracownika do zespołu</button>
+                <div id = employee></div><button class = 'button-add' onclick='addEmployee()'>Dodaj pracownika do zespołu</button>
                 
             <div id = "result"></div>
             </div>
@@ -44,14 +44,16 @@
                 const form = document.createElement('div');
                 form.className = "form-alert";
                 form.innerHTML = `
-                    <h3 style="margin-top: 0;">Dodaj pracownika do zespołu</h3>
-                    <div style="padding: 10px;">
+                    <h2 style="margin-top: 0; text-align: center">Dodaj pracownika do zespołu</h2>
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="padding: 10px; width: 500px;">
                         <label>Pracownik do dodania:</label><br>
                         ${block}
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="closeQuickForm()" class = "button-blue"">Anuluj</button>
                         <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
                     </div>
                 `;
                 
@@ -131,7 +133,15 @@
                         
                         for (i = 0; i<result2.length; i++)
                         {
-                            block+="<div class='team-box'><p>Imię i nazwisko: "+result2[i].first_name+" "+result2[i].last_name+"<button onclick='removeEmployeeFromTeam("+result2[i].id+","+team_id+")'>Usuń z zespołu</button></p></div>";
+                             if(i%2 == 0)
+                            {
+                                block+="<div class='team-column'>"
+                            }
+                            block+="<div class='team-box'><p>Imię i nazwisko: "+result2[i].first_name+" "+result2[i].last_name+"</p><p><button class = 'button-choose' onclick='removeEmployeeFromTeam("+result2[i].id+","+team_id+")'>Usuń z zespołu</button></p></div>";
+                             if(i%2 == 1)
+                            {
+                                block+="</div>"
+                            }
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

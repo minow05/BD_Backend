@@ -53,22 +53,24 @@
                 const form = document.createElement('div');
                 form.className = "form-alert";
                 form.innerHTML = `
-                    <h3 style="margin-top: 0;">Dodaj zadanie</h3>
-                    <div style="margin-bottom: 10px;">
+                    <h2 style="margin-top: 0; text-align: center">Dodaj zadanie</h2>
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="margin-bottom: 10px; width: 500px;">
                         <label>Opis:</label><br>
                         <input type="text" id="taskDesc" style="width: 100%; padding: 5px;">
                     </div>
-                    <div style="margin-bottom: 10px;">
+                    <div style="margin-bottom: 10px; width: 500px;">
                         <label>Pracownik:</label><br>
                         ${block1}
                     </div>
-                    <div style="margin-bottom: 10px;">
+                    <div style="margin-bottom: 10px; width: 500px;">
                         <label>Zadanie zespołu:</label><br>
                         ${block2}
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="closeQuickForm()" class = "button-blue"">Anuluj</button>
                         <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
                     </div>
                 `;
                 
@@ -189,11 +191,18 @@
                                 status = "DO SPRAWDZENIA"
                                 if (result2[j].status == "BLOCKED")
                                 status = "GOTOWE"
-                            block+="<div class='team-box'><p>Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>Zadanie: "+result2[j].description+" status: "+status;
-                            block+="<p><select id ='status"+result2[j].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button onclick='changestatus("+result2[j].id+",0)'>Zmień status</button><button onclick='changestatus("+result2[j].id+",1)'>Zatwierdź zadanie</button></p></div>";
-                            block+="<div id ='response'></div></div>"
+                            if(i%2 == 0)
+                            {
+                                block+="<div class='team-column'>"
                             }
-                            result2 = []
+                            block+="<div class='team-box'><p>Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>Zadanie: "+result2[j].description+" status: "+status;
+                            block+="<p>Zmień status: <select id ='status"+result2[j].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button class = 'button-change' onclick='changestatus("+result2[j].id+",0)'>Potwierdź</button></p><p><button class = 'button-confirm' onclick='changestatus("+result2[j].id+",1)'>Zatwierdź zadanie</button></p></div>";
+                            block+="<div id ='response'></div>"
+                            if(i%2 == 1)
+                            {
+                                block+="</div>"
+                            }
+                            }
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');
@@ -202,7 +211,7 @@
 
                         responseDiv.innerHTML = block;
                         task = document.getElementById("task");
-                        task.innerHTML = "<button onclick='addTask()'>Dodaj zadanie pracownika</button>"
+                        task.innerHTML = "<button class = 'button-add' onclick='addTask()'>Dodaj zadanie pracownika</button>"
                     } catch (error) {
                         const responseDiv = document.getElementById(endpoint-card);
                         responseDiv.style.display = 'block';

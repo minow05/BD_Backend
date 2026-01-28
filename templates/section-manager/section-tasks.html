@@ -43,13 +43,14 @@
                 const form = document.createElement('div');
                 form.className = "form-alert";
                 form.innerHTML = `
-                    <h3 style="margin-top: 0;">Dodaj zadanie</h3>
-                    <div style="margin-bottom: 10px;">
+                    <h2 style="margin-top: 0; text-align: center">Dodaj zadanie</h2>
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="margin-bottom: 10px; width: 500px;">
                         <label>Opis:</label><br>
-                        <input type="text" id="taskDesc" style="width: 100%; padding: 5px;">
+                        <textarea id="taskDesc" rows="4" style="width: 100%; resize: none; padding: 5px;"></textarea>
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="closeQuickForm()" class = "button-blue"">Anuluj</button>
                         <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
                     </div>
                 `;
@@ -190,20 +191,28 @@
                                 status = "DO SPRAWDZENIA"
                                 if (result[i].status == "BLOCKED")
                                 status = "GOTOWE"
+                             if(i%2 == 0)
+                            {
+                                block+="<div class='team-column'>"
+                            }
                             block+="<div class='team-box'><p>Zadanie nr "+(i+1)+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+status+"</p>";
-                            block+="<select id ='status"+result[i].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button onclick='changestatus("+result[i].id+",0)'>Zmień status</button>";
+                            block+="Zmień status: <select id ='status"+result[i].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button class = 'button-change' onclick='changestatus("+result[i].id+",0)'>Potwierdź</button>";
                             if("{{session.get('position', '')}}" == "studioHead")
                             {
-                                block+="<button onclick='changestatus("+result[i].id+",1)'>Zatwierdź zadanie</button>";
+                                block+="</p><button class = 'button-confirm' onclick='changestatus("+result[i].id+",1)'>Zatwierdź zadanie</button></p>";
                             }
                             block+="<div id ='response'></div></div>"
+                                 if(i%2 == 1)
+                            {
+                                block+="</div>"
+                            }
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');
 
                         if ("{{session.get('position', '')}}" == "studioHead"){
                             task = document.getElementById("task");
-                            task.innerHTML = "<button onclick='addSectionTask()'>Dodaj zadanie sekcji</button>"
+                            task.innerHTML = "<button class = 'button-add' onclick='addSectionTask()'>Dodaj zadanie sekcji</button>"
                         }
                         responseDiv.style.display = 'block';
                         responseDiv.innerHTML = block;

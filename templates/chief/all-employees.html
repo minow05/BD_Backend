@@ -20,7 +20,7 @@
                 <div id="endpoint-card">
 
                 </div>
-                <div id = "employee"><button onclick='addEmployee()'>Dodaj pracownika</button></div>
+                <div id = "employee"><button class = 'button-add' onclick='addEmployee()'>Dodaj pracownika</button></div>
                 
             </div>
             <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
@@ -37,10 +37,11 @@
                 const form = document.createElement('div');
                 form.className = "form-alert";
                 form.innerHTML = `
-                    <h3 style="margin-top: 0;">Dodaj pracownika</h3>
+                    <h2 style="margin-top: 0; text-align: center">Dodaj pracownika</h2>
+                    <div style="display: flex; flex-direction: column; align-items: center;">
                     <div style="margin-bottom: 10px;">
                         <label>Imię:</label><br>
-                        <input type="text" id="first-name" style="width: 100%; padding: 5px;">
+                        <input type="text" class = "form" id="first-name" style="width: 100%; padding: 5px;">
                     </div>
                     <div style="margin-bottom: 10px;">
                         <label>Nazwisko:</label><br>
@@ -63,8 +64,9 @@
                         <input type="text" id="pass" style="width: 100%; padding: 5px;">
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="closeQuickForm()" class = "button-blue">Anuluj</button>
                         <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                        </div>
                     </div>
                 `;
                 
@@ -108,25 +110,6 @@
                         if (e.key === 'Escape') closeQuickForm();
                     });
                 }
-                async function fireEmployee(employeeId) {
-                   if (!confirm(`Zwolnić pracownika?`)) return;
-            try {
-    
-                  const response = await fetch(`/api/employees/${employeeId}`, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json'
-            }
-        }); 
-                if (response.ok) {
-                    const result = await response.json();
-                    generateContent();
-                }
-            } catch (error) {
-                console.error('Błąd:', error);
-            }
-
-                }
                 async function generateContent() {
                     try {
 
@@ -135,13 +118,25 @@
                         block = ""
                         
                         for (i = 0; i<result.length; i++)
-                        {
+                        {   if(i%2 == 0)
+                            {
+                                block+="<div class='team-column'>"
+                            }
                             block+="<div class='team-box'><p>Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>STANOWISKO: "+result[i].position+"</p><p>PESEL: "+result[i].pesel+"</p><p>Numer telefony: "+result[i].phone
                             if(result[i].fire_date == null)
-                            block+="</p><p>Data zatrudnienia: "+result[i].hire_date+"</p><p>Data zwolnienia: ------</p>";
+                            {
+                            block+="</p><p>Data zatrudnienia: "+result[i].hire_date+"</p><p>Data zwolnienia: ------</p></div>";
+                            }
                             else
-                            block+="</p><p>Data zatrudnienia: "+result[i].hire_date+"</p><p>Data zwolnienia: "+result[i].fire_date+"</p>";
-                            block+="<button onclick='fireEmployee("+result[i].id+")'>Zwolnij pracownika</button></div>";
+                            {
+                            block+="</p><p>Data zatrudnienia: "+result[i].hire_date+"</p><p>Data zwolnienia: "+result[i].fire_date+"</p></div>";
+
+                            }
+                            if(i%2 == 1)
+                            {
+                                block+="</div>"
+                            }
+
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

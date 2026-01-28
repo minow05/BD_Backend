@@ -9,16 +9,15 @@
         <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
         <body>
             <div class="container">
-                <h1>🎮 Studio Gier</h1>
                 <div class="endpoint-card">
-                    <div class="team-box">
-                        <h3>👥 Logowanie</h3>
-                        <p>Wpisz dane logowania, by zwrócić informacje o pracowniku.</p>
-                        <input type="text" id="login" placeholder="login" 
-                               style="padding: 8px; width: 100px; margin-right: 10px;">
-                        <input type="password" id="password" placeholder="password" 
-                               style="padding: 8px; width: 100px; margin-right: 10px;">
-                        <button onclick="logIn()">zaloguj się</button>
+                    <div class="box">
+                        <h1>Logowanie</h1>
+                        <p>Wpisz dane logowania</p>
+                        <p><input type="text" id="login" placeholder="login" 
+                               style="padding: 8px; width: 250px; margin-right: 10px;"></p>
+                        <p><input type="password" id="password" placeholder="password" 
+                               style="padding: 8px; width: 250px; margin-right: 10px;"></p>
+                        <button class="button-confirm" onclick="logIn()">zaloguj się</button>
                         <div id="response3" class="response" style="margin-top: 15px;"></div>
                     </div>
                 </div>

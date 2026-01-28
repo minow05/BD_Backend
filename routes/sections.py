@@ -27,7 +27,8 @@ def get_sections():
     return jsonify([
         {
             "id": s.id,
-            "name": s.name
+            "name": s.name,
+            "manager_id": s.manager_id,
         }
         for s in sections
     ])
@@ -83,6 +84,8 @@ def get_section_progress(section_id):
 def get_teams_of_section(section_id):
     teams = Team.query.filter_by(section_id=section_id).all()
     return jsonify([
-        {"id": t.id, "name": t.name}
+        {"id": t.id, 
+         "name": t.name,
+         "manager_id": t.manager_id}
         for t in teams
     ])

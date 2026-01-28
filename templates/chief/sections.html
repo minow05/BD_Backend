@@ -20,7 +20,7 @@
                 <div id="endpoint-card">
 
                 </div>
-                <div id = "section"><button onclick='addSection()'>Dodaj sekcję</button></div>
+                <div id = "section"><button class = 'button-add' onclick='addSection()'>Dodaj sekcję</button></div>
                 
             </div>
             <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
@@ -52,18 +52,20 @@
                 const form = document.createElement('div');
                 form.className = "form-alert";
                 form.innerHTML = `
-                    <h3 style="margin-top: 0;">Dodaj sekcję</h3>
-                    <div style="margin-bottom: 10px;">
-                        <label>Nazwa zespołu:</label><br>
+                    <h2 style="margin-top: 0; text-align: center">Dodaj sekcję</h2>
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="margin-bottom: 10px; width: 300px;">
+                        <label>Nazwa sekcji:</label><br>
                         <input type="text" id="sectionName" style="width: 100%; padding: 5px;">
                     </div>
-                    <div style="margin-bottom: 10px;">
+                    <div style="margin-bottom: 10px; ; width: 300px;">
                         <label>Manager sekcji:</label><br>
                         ${block}
                     </div>
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button onclick="closeQuickForm()"">Anuluj</button>
+                        <button onclick="closeQuickForm()" class = "button-blue"">Anuluj</button>
                         <button onclick="submitQuickForm()" class = "button-green">Zapisz</button>
+                    </div>
                     </div>
                 `;
                 
@@ -114,22 +116,28 @@
                     });
                 }
                 async function generateContent() {
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    };
                     try {
 
-                        const response = await fetch(`/api/sections/`, options);
-                        const result = await response.json();
+                        response = await fetch(`/api/sections/`, {method: "GET"});
+                        result = await response.json();
+                        
                         block = ""
                         
                         for (i = 0; i<result.length; i++)
                         {
-                            block+="<div class='team-box'><p>Id sekcji: "+result[i].id+"</p><p>Nazwa sekcji: "+result[i].name+"</p>";
-                            block+="<button onclick='redirect(`task`,"+result[i].id+")'>Zarządzaj zadaniami</button><button onclick='redirect(`section`,"+result[i].id+")'>Zarządzaj sekcją</button></div>";
+                            manager_id = result[i].manager_id
+                            response2 = await fetch(`/api/employees/employee/${manager_id}`, {method: "GET"});
+                            result2 = await response2.json();
+                             if(i%2 == 0)
+                            {
+                                block+="<div class='team-column'>"
+                            }
+                            block+="<div class='team-box'><p>Nazwa sekcji: "+result[i].name+"</p><p>Kierownik sekcji: "+result2[0].first_name+" "+result2[0].last_name+"</p>";
+                            block+="<button class = 'button-choose' onclick='redirect(`task`,"+result[i].id+")'>Zarządzaj zadaniami</button><button class = 'button-choose' onclick='redirect(`section`,"+result[i].id+")'>Zarządzaj sekcją</button></div>";
+                                if(i%2 == 1)
+                            {
+                                block+="</div>"
+                            }
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

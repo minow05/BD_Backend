@@ -13,7 +13,7 @@
             </div>
             <div class="container">
                 <h1>Twoje dane</h1>
-                <div id="endpoint-card"></div>
+                <div id="endpoint-card-small"></div>
             </div>
             <script src = "{{ url_for('static',filename='js/func.js') }}"></script>
             <script>
@@ -30,12 +30,12 @@
                     try {
                         
                         id = "{{session.get('myid', '')}}"
-                        const response = await fetch(`/api/employees/employee/id/${id}`, {method: "GET"});
+                        const response = await fetch(`/api/employees/employee/${id}`, {method: "GET"});
                         const result = await response.json();
                         
-                            block="<div class='team-box'><p>Imię i nazwiako: "+result[0].first_name+" "+result[0].last_name+"</p><p>PESEL: "+result[0].pesel+"</p><p>Nr telefonu: "+result[0].phone+"</p><p>Email: "+result[0].mail+"</p><p>Data zatrudnienia: "+result[0].hire_date+"</p></div>";
+                            block="<div class='box'><p>Imię i nazwiako: "+result[0].first_name+" "+result[0].last_name+"</p><p>PESEL: "+result[0].pesel+"</p><p>Nr telefonu: "+result[0].phone+"</p><p>Stanowisko: "+result[0].position+"</p><p>Data zatrudnienia: "+result[0].hire_date+"</p></div>";
                         
-                        const responseDiv = document.getElementById('endpoint-card');
+                        const responseDiv = document.getElementById('endpoint-card-small');
 
                         responseDiv.style.display = 'block';
 

@@ -88,7 +88,7 @@ def get_employees():
         })
     
     return jsonify(result)
-@employees_bp.get("/employee/id/<int:id>")
+@employees_bp.get("/employee/<int:id>")
 def get_employee_id(id):
 
     employeee = (
@@ -101,15 +101,15 @@ def get_employee_id(id):
         sectionManager = SectionManager.query.all()
         teamManager = TeamManager.query.all()
         id = employee.id
-        for e in studioHead:
-            if id == e.id:
-                position = "szef studia"
-        for e in sectionManager:
-            if id == e.id:
-                position = "kierownik sekcji"
         for e in teamManager:
             if id == e.id:
                 position = "kierownik zespołu"
+        for e in sectionManager:
+            if id == e.id:
+                position = "kierownik sekcji"
+        for e in studioHead:
+            if id == e.id:
+                position = "szef studia"
     return jsonify([
         {
             "id": employee.id,
@@ -119,6 +119,7 @@ def get_employee_id(id):
             "pesel": employee.pesel,
             "phone": employee.phone,
             "hire_date": employee.hire_date,
+            "login": employee.login,
         }
         for employee in employeee
                
