@@ -150,7 +150,7 @@ class Game(db.Model):
 class Task(db.Model):
     __tablename__ = "task"
     id = db.Column(db.Integer, primary_key=True)
-
+    title = db.Column(db.Text)
     description = db.Column(db.Text)
     start_date = db.Column(db.String(20))
     end_date = db.Column(db.String(20))

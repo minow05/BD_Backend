@@ -40,7 +40,7 @@
                 block = "<select style='width: 100%; padding: 5px' size = '5' name = 'tasks' id = 'sectionTask'>"
                 for (i = 0; i<result.length; i++)
                 {
-                    block+="<option>"+result[i].description+"</option>"
+                    block+="<option>"+result[i].title+"</option>"
                 }
                 block += "</select>"
                 const modal = document.createElement('div');
@@ -51,6 +51,10 @@
                 form.innerHTML = `
                     <h2 style="margin-top: 0; text-align: center">Dodaj zadanie</h2>
                     <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="margin-bottom: 10px; width: 500px;">
+                        <label>Nazwa:</label><br>
+                         <input type="text" id="taskName" style="width: 100%; padding: 5px;">
+                    </div>
                     <div style="margin-bottom: 10px; width: 500px;">
                         <label>Opis:</label><br>
                         <textarea id="taskDesc" rows="4" style="width: 100%; resize: none; padding: 5px;"></textarea>
@@ -76,6 +80,7 @@
                 window.submitQuickForm = async function() {
                     const desc = document.getElementById('taskDesc').value;
                     const sectionTask = document.getElementById('sectionTask').value;
+                    const name = document.getElementById('taskName').value;
                     const team_id = "{{session.get('teamid', '')}}"
                     response = await fetch(`/api/teams/info/${team_id}`, {method: "GET"});
                     result = await response.json();
@@ -84,11 +89,12 @@
                     result = await response.json();
                     for (i = 0; i<result.length; i++)
                     {
-                        if(result[i].description == sectionTask)
+                        if(result[i].title == sectionTask)
                         {
                         sectionTaskId = result[i].id
                         }
                     }
+
                     if (!desc || !sectionTask) {
                         alert('Wypełnij wszystkie pola!');
                         return;
@@ -97,7 +103,7 @@
                         const response = await fetch('/api/tasks/team', {
                                 method: 'POST',
                                 headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({description: desc, team_id: team_id, section_task_id: sectionTaskId})
+                                body: JSON.stringify({title: name, description: desc, team_id: team_id, section_task_id: sectionTaskId})
                             });
                         
                         if (response.ok) {
@@ -177,21 +183,16 @@
                                 status = "DO SPRAWDZENIA"
                                 if (result[i].status == "BLOCKED")
                                 status = "GOTOWE"
-                            if(i%2 == 0)
-                            {
-                                block+="<div class='team-column'>"
-                            }
-                            block+="<div class='team-box'><p>Zadanie nr "+(i+1)+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+status+"</p>";
+
+                            block+="<div class='team-box'><p>Zadanie nr "+(i+1)+"</p><p>Nazwa: "+result[i].title+"</p><p>Opis: "+result[i].description+"</p>";
+                            block+="</p><p>Data rozpoczęcia: "+result[i].start_date+"</p><p>Przewidywana data ukończenia: "+result[i].end_date+"</p><p>Status: "+status+"</p>";    
                             block+="Zmień status: <select id ='status"+result[i].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button class = 'button-change' onclick='changestatus("+result[i].id+",0)'>Potwierdź</button>";
                             if("{{session.get('position', '')}}" == "sectionManager" || "{{session.get('position', '')}}" == "studioHead")
                             {
                                 block+="<p><button class = 'button-confirm' onclick='changestatus("+result[i].id+",1)'>Zatwierdź zadanie</button></p>";
                             }
                             block+="<div id ='response"+result[i].id+"'></div></div>"
-                                 if(i%2 == 1)
-                            {
-                                block+="</div>"
-                            }
+
                         }                       
                         const responseDiv = document.getElementById('endpoint-card');                 
                         responseDiv.style.display = 'block';

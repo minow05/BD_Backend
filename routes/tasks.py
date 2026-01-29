@@ -13,6 +13,7 @@ def create_section_task():
     data = request.json
 
     task = Task(
+        title =data["title"],
         description=data["description"],
         start_date=fake.date_between(start_date='-1m', end_date='today').strftime('%Y-%m-%d'),
         end_date=fake.date_between(start_date='today', end_date='+1m').strftime('%Y-%m-%d'),
@@ -38,7 +39,10 @@ def create_team_task():
     data = request.json
 
     task = Task(
+        title =data["title"],
         description=data["description"],
+        start_date=fake.date_between(start_date='-1m', end_date='today').strftime('%Y-%m-%d'),
+        end_date=fake.date_between(start_date='today', end_date='+1m').strftime('%Y-%m-%d'),
         status=TaskStatus.TODO
     )
     db.session.add(task)
@@ -60,6 +64,7 @@ def create_employee_task():
     data = request.json
 
     task = Task(
+        title =data["title"],
         description=data["description"],
         start_date=fake.date_between(start_date='-1m', end_date='today').strftime('%Y-%m-%d'),
         end_date=fake.date_between(start_date='today', end_date='+1m').strftime('%Y-%m-%d'),
@@ -90,6 +95,7 @@ def get_tasks_for_employee(employee_id):
     return jsonify([
         {
             "id": t.id,
+            "title": t.title,
             "description": t.description,
             "start_date": t.start_date,
             "end_date": t.end_date,
@@ -110,6 +116,7 @@ def get_tasks_for_team(team_id):
     return jsonify([
         {
             "id": t.id,
+            "title": t.title,
             "description": t.description,
             "start_date": t.start_date,
             "end_date": t.end_date,
@@ -130,6 +137,7 @@ def get_tasks_for_section(section_id):
     return jsonify([
         {
             "id": t.id,
+            "title": t.title,
             "description": t.description,
             "start_date": t.start_date,
             "end_date": t.end_date,
@@ -145,6 +153,7 @@ def get_all_tasks():
     return jsonify([
         {
             "id": t.id,
+            "title": t.title,
             "description": t.description,
             "start_date": t.start_date,
             "end_date": t.end_date,

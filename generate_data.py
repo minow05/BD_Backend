@@ -229,7 +229,8 @@ def create_sample_data(app):
             for j in range(num_section_tasks):
                 desc_idx = (i * 3 + j) % len(task_descriptions)
                 task = Task(
-                    description=f"[SEKCJA] {task_descriptions[desc_idx]}",
+                    title=f"{task_descriptions[desc_idx]}",
+                    description= ' '.join([fake.word() for _ in range(10)]),
                     start_date=fake.date_between(start_date='-3m', end_date='today').strftime('%Y-%m-%d'),
                     end_date=fake.date_between(start_date='today', end_date='+6m').strftime('%Y-%m-%d'),
                     status=random.choice(list(TaskStatus))
@@ -254,7 +255,8 @@ def create_sample_data(app):
             for j in range(num_team_tasks):
                 desc_idx = (i * 5 + j + 10) % len(task_descriptions) 
                 task = Task(
-                    description=f"[ZESPÓŁ {team.name}] {task_descriptions[desc_idx]}",
+                    title=f"{task_descriptions[desc_idx]}",
+                    description= ' '.join([fake.word() for _ in range(10)]),
                     start_date=fake.date_between(start_date='-2m', end_date='today').strftime('%Y-%m-%d'),
                     end_date=fake.date_between(start_date='today', end_date='+3m').strftime('%Y-%m-%d'),
                     status=random.choice(list(TaskStatus))
@@ -296,7 +298,8 @@ def create_sample_data(app):
                     team_task = random.choice(team_tasks_for_team)
                     
                     task = Task(
-                        description=f"[PRACOWNIK] Szczegóły: {task_descriptions[(member_id + j) % len(task_descriptions)]}",
+                        title=f"{task_descriptions[(member_id + j) % len(task_descriptions)]}",
+                        description= ' '.join([fake.word() for _ in range(10)]),
                         start_date=fake.date_between(start_date='-1m', end_date='today').strftime('%Y-%m-%d'),
                         end_date=fake.date_between(start_date='today', end_date='+1m').strftime('%Y-%m-%d'),
                         status=random.choice(list(TaskStatus))
@@ -314,7 +317,7 @@ def create_sample_data(app):
         
         db.session.add_all(employee_tasks)
         db.session.commit()
-        print("\n🔑 DANE LOGOWANIA DLA TESTÓW:")
+        print("\nDANE LOGOWANIA DLA TESTÓW:")
         print("="*40)
         print("Studio Head:   login: anowak, password: StudioHead2024!")
         print("Section Manager 1: login: akowalska, password: SmPass1!")

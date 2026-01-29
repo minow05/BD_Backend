@@ -26,7 +26,6 @@
                 }
                 async function chooseOption(type) {
                     id = "{{session.get('myid', '')}}"
-                    
                         const response1 = await fetch(`/api/employees/${id}/context`, {method: "GET"});
                         const result1 = await response1.json();
                         sectionId = result1.section_id
@@ -46,6 +45,10 @@
                     <h2 style="margin-top: 0; text-align: center">Dodaj zadanie</h2>
                     <div style="display: flex; flex-direction: column; align-items: center;">
                     <div style="margin-bottom: 10px; width: 500px;">
+                        <label>Nazwa:</label><br>
+                         <input type="text" id="taskName" style="width: 100%; padding: 5px;">
+                    </div>
+                    <div style="margin-bottom: 10px; width: 500px;">
                         <label>Opis:</label><br>
                         <textarea id="taskDesc" rows="4" style="width: 100%; resize: none; padding: 5px;"></textarea>
                     </div>
@@ -64,7 +67,7 @@
                 };
                 window.submitQuickForm = async function() {
                     const desc = document.getElementById('taskDesc').value;
-                    
+                    const name = document.getElementById('taskName').value;
                     if (!desc) {
                         alert('Wypełnij wszystkie pola!');
                         return;
@@ -73,7 +76,7 @@
                         const response = await fetch('/api/tasks/section', {
                                 method: 'POST',
                                 headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({description: desc, section_id: section_id, game_id: "1"})
+                                body: JSON.stringify({title: name, description: desc, section_id: section_id, game_id: "1"})
                             });
                         
                         if (response.ok) {
@@ -94,31 +97,6 @@
                     });
                 }
             
-                async function addTask() {
-                    tresc = document.getElementById("text").value;
-                    section_id = "{{session.get('sectionid', '')}}"
-
-                    try {
-                const response = await fetch('/api/tasks/section', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({description: tresc, section_id: section_id, game_id: "1"})
-                });
-                
-                if (response.ok) {
-                    document.getElementById('result').innerHTML = 
-                        `<p style="color: green;">Dodano zadanie dla sekcji nr ${section_id}</p>`;
-                        generateContent();
-                } else {
-                    document.getElementById('result').innerHTML = 
-                        `<p style="color: red;">Błąd: ${response.status}</p>`;
-                }
-            } catch (error) {
-                document.getElementById('result').innerHTML = 
-                    `<p style="color: orange;">Błąd: ${error.message}</p>`;
-            }
-            generateContent()
-                }
                 async function changestatus(task_id, done) {
                     const options = {
                         method: "GET",
@@ -191,21 +169,16 @@
                                 status = "DO SPRAWDZENIA"
                                 if (result[i].status == "BLOCKED")
                                 status = "GOTOWE"
-                             if(i%2 == 0)
-                            {
-                                block+="<div class='team-column'>"
-                            }
-                            block+="<div class='team-box'><p>Zadanie nr "+(i+1)+"</p><p>Opis: "+result[i].description+"</p><p>Status: "+status+"</p>";
+
+                            block+="<div class='team-box'><p>Zadanie nr "+(i+1)+"</p><p>Nazwa: "+result[i].title+"</p><p>Opis: "+result[i].description+"</p>";
+                            block+="</p><p>Data rozpoczęcia: "+result[i].start_date+"</p><p>Przewidywana data ukończenia: "+result[i].end_date+"</p><p>Status: "+status+"</p>";
                             block+="Zmień status: <select id ='status"+result[i].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button class = 'button-change' onclick='changestatus("+result[i].id+",0)'>Potwierdź</button>";
                             if("{{session.get('position', '')}}" == "studioHead")
                             {
                                 block+="</p><button class = 'button-confirm' onclick='changestatus("+result[i].id+",1)'>Zatwierdź zadanie</button></p>";
                             }
                             block+="<div id ='response'></div></div>"
-                                 if(i%2 == 1)
-                            {
-                                block+="</div>"
-                            }
+
                         }
                         
                         const responseDiv = document.getElementById('endpoint-card');

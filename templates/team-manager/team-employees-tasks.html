@@ -44,7 +44,7 @@
                 block2 = "<select style='width: 100%; padding: 5px' size = '5' name = 'tasks' id = 'teamTask'>"
                 for (i = 0; i<result.length; i++)
                 {
-                    block2+="<option>"+result[i].description+"</option>"
+                    block2+="<option>"+result[i].title+"</option>"
                 }
                 block2 += "</select>"
                 const modal = document.createElement('div');
@@ -55,6 +55,10 @@
                 form.innerHTML = `
                     <h2 style="margin-top: 0; text-align: center">Dodaj zadanie</h2>
                     <div style="display: flex; flex-direction: column; align-items: center;">
+                    <div style="margin-bottom: 10px; width: 500px;">
+                        <label>Nazwa:</label><br>
+                         <input type="text" id="taskName" style="width: 100%; padding: 5px;">
+                    </div>
                     <div style="margin-bottom: 10px; width: 500px;">
                         <label>Opis:</label><br>
                         <input type="text" id="taskDesc" style="width: 100%; padding: 5px;">
@@ -83,6 +87,7 @@
                 };
                 window.submitQuickForm = async function() {
                     const desc = document.getElementById('taskDesc').value;
+                    const name = document.getElementById('taskName').value;
                     const teamTask = document.getElementById('teamTask').value;
                     const employee = document.getElementById('employee').value.split(" ");
                     if (!desc || !teamTask || !employee) {
@@ -94,7 +99,7 @@
                     result = await response.json();
                     for (i = 0; i<result.length; i++)
                     {
-                        if(result[i].description == teamTask)
+                        if(result[i].title == teamTask)
                         {
                         teamTaskId = result[i].id
                         }
@@ -115,7 +120,7 @@
                          const response = await fetch('/api/tasks/employee-task', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({description: desc, team_member_id: id, team_task_id: teamTaskId})
+                    body: JSON.stringify({title: name, description: desc, team_member_id: id, team_task_id: teamTaskId})
                 });
                         
                         if (response.ok) {
@@ -180,7 +185,8 @@
                             id = result[i].id;
                             response2 = await fetch(`/api/tasks/employee/${id}`, {method: "GET"});
                             result2 = await response2.json();
-                         
+                            
+
                             for (j = 0; j<result2.length; j++)
                             {
                                 if (result2[j].status == "TODO")
@@ -191,17 +197,13 @@
                                 status = "DO SPRAWDZENIA"
                                 if (result2[j].status == "BLOCKED")
                                 status = "GOTOWE"
-                            if(i%2 == 0)
-                            {
-                                block+="<div class='team-column'>"
-                            }
-                            block+="<div class='team-box'><p>Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>Zadanie: "+result2[j].description+" status: "+status;
+  
+                            
+                            block+="<div class='team-box'><p>Imię i nazwisko: "+result[i].first_name+" "+result[i].last_name+"</p><p>Nazwa: "+result2[j].title+"</p><p>Opis: "+result2[j].description+"</p>";
+                            block+="</p><p>Data rozpoczęcia: "+result2[j].start_date+"</p><p>Przewidywana data ukończenia: "+result2[j].end_date+"</p><p>Status: "+status+"</p>";
                             block+="<p>Zmień status: <select id ='status"+result2[j].id+"'><option>DO ZROBIENIA</option><option>W TRAKCIE</option><option>DO SPRAWDZENIA</option></select><button class = 'button-change' onclick='changestatus("+result2[j].id+",0)'>Potwierdź</button></p><p><button class = 'button-confirm' onclick='changestatus("+result2[j].id+",1)'>Zatwierdź zadanie</button></p></div>";
                             block+="<div id ='response'></div>"
-                            if(i%2 == 1)
-                            {
-                                block+="</div>"
-                            }
+
                             }
                         }
                         
